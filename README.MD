@@ -4,10 +4,17 @@
 ## 例子
 以下为回复一条消息的简单实现
 ``` C#
-MasudaBot MasudaBot
-    = new MasudaBot(appid, appkey, token);
+using Masuda.Net;
 
-MasudaBot.ListenMessage += async (bot, msg) => { 
+MasudaBot MasudaBot
+    = new(appid, appkey, token);
+
+MasudaBot.AtMessageAction += async (bot, msg) => 
+{ 
     await bot.ReplyMessageAsync(msg, "muda");
 };
-```
+while (true)
+{
+    await Task.Delay(10000);
+}
+

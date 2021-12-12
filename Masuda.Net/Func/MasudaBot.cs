@@ -231,6 +231,16 @@ namespace Masuda.Net
             }
             return await res.Content.ReadFromJsonAsync<Message>();
         }
+        /// <summary>
+        /// 获取指定Id消息
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="msgId"></param>
+        /// <returns></returns>
+        public async Task<Message> GetMessageAsync(string channelId, string msgId)
+        {
+            return await _httpClient.GetFromJsonAsync<Message>($"{_testUrl}/channels/{channelId}/messages/{msgId}");
+        }
         #endregion
 
         #region 音频API
@@ -403,39 +413,95 @@ namespace Masuda.Net
             {
                 case Opcode.Dispatch:
                     _lastS = data.GetProperty("s").GetInt32();
-                    if (_lastS == 1)
+                     if (data.TryGetProperty("t", out var t))
                     {
-                        _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
-                        _timer = new Timer
-                       (new TimerCallback(async _ => await SendHeartBeatAsync()),
-                       null, 1000, _heartbeatInterval - 1000);
-                    }
-                    else
-                    {
-                        if (data.TryGetProperty("t", out var t) && t.GetString() == "RESUMED")
+                        string type = t.GetString();
+                        switch (type)
                         {
-                            return;
-                        }
-                        Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
-                        ListenMessage?.Invoke(this, message);
-                        //string aa = message.Content;
-                        ////var aaaa = await GetMeGuildsAsync();
-                        ////foreach (var item in aaaa)
-                        ////{
-                        ////    Console.WriteLine(item.Name);
-                        ////    var cs = await GetChannelsAsync(item.Id);
-                        ////    foreach (var item1 in cs)
-                        ////    {
-                        ////        Console.WriteLine(item1.Name);
-                        ////    }
-                        ////}
+                            case "READY":
+                                _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
+                                _timer = new Timer
+                               (new TimerCallback(async _ => await SendHeartBeatAsync()),
+                               null, 1000, _heartbeatInterval - 1000);
+                                break;
+                            case "RESUMED":
+                                break;
+                            case "GUILD_CREATE":
+                                break;
+                            case "GUILD_UPDATE":
+                                break;
+                            case "GUILD_DELETE":
+                                break;
+                            case "CHANNEL_CREATE":
+                                break;
+                            case "CHANNEL_UPDATE":
+                                break;
+                            case "CHANNEL_DELETE":
+                                break;
+                            case "GUILD_MEMBER_ADD":
+                                break;
+                            case "GUILD_MEMBER_UPDATE":
+                                break;
+                            case "GUILD_MEMBER_REMOVE":
+                                break;
+                            case "MESSAGE_REACTION_ADD":
+                                break;
+                            case "MESSAGE_REACTION_REMOVE":
+                                break;
+                            case "DIRECT_MESSAGE_CREATE":
+                                break;
+                            case "AUDIO_START":
+                                break;
+                            case "AUDIO_FINISH":
+                                break;
+                            case "AUDIO_ON_MIC":
+                                break;
+                            case "AUDIO_OFF_MIC":
+                                break;
+                            case "AT_MESSAGE_CREATE":
+                                Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
+                                AtMessageAction?.Invoke(this, message);
+                                break;
 
-                        //var aaa = await ReplyMessage(message.ChannelId, "muda", message.Id);
-                        //await ReplyMessage(message.ChannelId, "muda", message.Id);
-                        //await ReplyMessage(message.ChannelId, "muda", message.Id);
-                        //var aaa = await SendMessage(message.ChannelId, "muda");
-                        //var aaa = await SendMessage("746444190235179419", "muda");
+                            default:
+                                break;
+                        }
                     }
+                    //if (_lastS == 1)
+                    //{
+                    //    _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
+                    //    _timer = new Timer
+                    //   (new TimerCallback(async _ => await SendHeartBeatAsync()),
+                    //   null, 1000, _heartbeatInterval - 1000);
+                    //}
+                    //else
+                    //{
+
+                    //    if (data.TryGetProperty("t", out var t) && t.GetString() == "RESUMED")
+                    //    {
+
+                    //        return;
+                    //    }
+                    //    Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
+                    //    ListenMessage?.Invoke(this, message);
+                    //    //string aa = message.Content;
+                    //    ////var aaaa = await GetMeGuildsAsync();
+                    //    ////foreach (var item in aaaa)
+                    //    ////{
+                    //    ////    Console.WriteLine(item.Name);
+                    //    ////    var cs = await GetChannelsAsync(item.Id);
+                    //    ////    foreach (var item1 in cs)
+                    //    ////    {
+                    //    ////        Console.WriteLine(item1.Name);
+                    //    ////    }
+                    //    ////}
+
+                    //    //var aaa = await ReplyMessage(message.ChannelId, "muda", message.Id);
+                    //    //await ReplyMessage(message.ChannelId, "muda", message.Id);
+                    //    //await ReplyMessage(message.ChannelId, "muda", message.Id);
+                    //    //var aaa = await SendMessage(message.ChannelId, "muda");
+                    //    //var aaa = await SendMessage("746444190235179419", "muda");
+                    //}
                     break;
                 case Opcode.Heartbeat:
                     break;

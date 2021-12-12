@@ -25,7 +25,13 @@ namespace Masuda.Net
         /// </summary>
         private Timer _timer;
         private string _sessionId = null;
-        public event Action<MasudaBot, Message> ListenMessage;
+        public event Action<MasudaBot, Message> AtMessageAction;
+        public event Action<MasudaBot, AudioAction> AudioAction;
+        public event Action<MasudaBot, Message> DircetAction;
+        public event Action<MasudaBot, Message> GuildMessageReAction;
+        public event Action<MasudaBot, MemberWithGuildID> GuildMembersAction;
+        public event Action<MasudaBot, Guild> GuildAction;
+        public event Action<MasudaBot, Channel> ChannelAction;
         public MasudaBot(int appId, string appKey, string token)
         {
             _apiKey = appKey;
