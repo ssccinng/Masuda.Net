@@ -15,14 +15,17 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 用户Id
         /// </summary>
+        [JsonPropertyName("id")]
         public string Id { get; set; }
         /// <summary>
         /// 用户名
         /// </summary>
+        [JsonPropertyName("username")]
         public string Username { get; set; }
         /// <summary>
         /// 用户头像地址
         /// </summary>
+        [JsonPropertyName("avatar")]
         public string Avatar { get; set; }
         /// <summary>
         /// 特殊关联应用OpenId(需申请)

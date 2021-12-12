@@ -12,14 +12,17 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 频道Id
         /// </summary>
+        [JsonPropertyName("id")]
         public string Id { get; set; }
         /// <summary>
         /// 频道名称
         /// </summary>
+        [JsonPropertyName("name")]
         public string Name { get; set; }
         /// <summary>
         /// 频道Icon路径
         /// </summary>
+        [JsonPropertyName("icon")]
         public string Icon { get; set; }
         /// <summary>
         /// 频道拥有者Id
@@ -29,6 +32,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 当前人是否为频道创建人
         /// </summary>
+        [JsonPropertyName("owner")]
         public bool Owner { get; set; }
         /// <summary>
         /// 成员总数
@@ -43,6 +47,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 频道描述
         /// </summary>
+        [JsonPropertyName("description")]
         public string Description { get; set; }
         /// <summary>
         /// 加入时间

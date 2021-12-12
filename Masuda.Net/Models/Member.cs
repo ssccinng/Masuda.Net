@@ -15,14 +15,17 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 成员QQ资料
         /// </summary>
+        [JsonPropertyName("user")]
         public User User { get; set; }
         /// <summary>
         /// 成员频道昵称
         /// </summary>
+        [JsonPropertyName("nick")]
         public string Nick { get; set; }
         /// <summary>
         /// 成员身份列表
         /// </summary>
+        [JsonPropertyName("roles")]
         public string[] Roles { get; set; }
         /// <summary>
         /// 成员加入时间

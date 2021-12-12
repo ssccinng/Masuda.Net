@@ -197,13 +197,20 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<Message> SendMessage(string channelId, string content)
+        public async Task<Message> SendMessageAsync(string channelId, string content)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
             return await res.Content.ReadFromJsonAsync<Message>();
         }
 
-        public async Task<Message> ReplyMessage(string channelId, string content, string msgId)
+        public async Task<Message> SendMessageAsync(Message message, string content)
+        {
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content });
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
+
+
+        public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
         {
 
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content, msg_id = msgId });
@@ -213,12 +220,30 @@ namespace Masuda.Net
             }
             return await res.Content.ReadFromJsonAsync<Message>();
         }
+
+        public async Task<Message> ReplyMessageAsync(Message message, string content)
+        {
+
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
         #endregion
 
         #region 音频API
-        #endregion
+        public async Task AudioControlAsync(string channelId, string url, STATUS STATUS = STATUS.START, string text = "")
+        {
 
-        #region 消息API
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/audio", new AudioControl { AudioUrl = url, Text = text, Status = STATUS });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            //return await res.Content.ReadFromJsonAsync<Message>();
+        }
         #endregion
 
         #region 用户API 
@@ -272,34 +297,47 @@ namespace Masuda.Net
         private async Task WebSocketInit()
         {
             var WssOption = GetWssUrlWithShared().Result;
-            _webSocket = new ClientWebSocket();
-            if (Uri.TryCreate(WssOption, UriKind.Absolute, out Uri webSocketUri))
-            {
-                await _webSocket.ConnectAsync(webSocketUri, CancellationToken.None);
-            }
-            else
-            {
-                throw new Exception("连接服务器失败");
-                //return;
-            }
-
             while (true)
             {
-                var rcvBytes = new byte[25000];
-                var rcvBuffer = new ArraySegment<byte>(rcvBytes);
-                WebSocketReceiveResult rcvResult = await _webSocket.ReceiveAsync(rcvBuffer, CancellationToken.None);
-
-                if (rcvResult?.MessageType != WebSocketMessageType.Text)
+                try
                 {
-                    Console.WriteLine("未知信息");
-                    continue;
+                    _webSocket = new ClientWebSocket();
+                    if (Uri.TryCreate(WssOption, UriKind.Absolute, out Uri webSocketUri))
+                    {
+                        await _webSocket.ConnectAsync(webSocketUri, CancellationToken.None);
+                    }
+                    else
+                    {
+                        throw new Exception("连接服务器失败");
+                        //return;
+                    }
+
+                    while (true)
+                    {
+                        var rcvBytes = new byte[25000];
+                        var rcvBuffer = new ArraySegment<byte>(rcvBytes);
+                        WebSocketReceiveResult rcvResult = await _webSocket.ReceiveAsync(rcvBuffer, CancellationToken.None);
+
+                        if (rcvResult?.MessageType != WebSocketMessageType.Text)
+                        {
+                            Console.WriteLine("未知信息");
+                            continue;
+                        }
+                        byte[] msgBytes = rcvBuffer.Skip(rcvBuffer.Offset).Take(rcvResult.Count).ToArray();
+                        //Console.WriteLine("转换成功!");
+                        await ExcuteCommand(msgBytes);
+                    }
                 }
-                byte[] msgBytes = rcvBuffer.Skip(rcvBuffer.Offset).Take(rcvResult.Count).ToArray();
-                //Console.WriteLine("转换成功!");
-                await ExcuteCommand(msgBytes);
+                catch (Exception e)
+                {
+
+                    Console.WriteLine(e);
+                    await Task.Delay(10000);
+                }
             }
+          
         }
-        private async Task SendHeartBeat()
+        private async Task SendHeartBeatAsync()
         {
             Console.WriteLine("发送心跳");
             var data = new
@@ -309,9 +347,18 @@ namespace Masuda.Net
             };
             await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
         }
-
-        private async Task SendIdentify()
+        /// <summary>
+        /// 鉴权消息
+        /// </summary>
+        /// <returns></returns>
+        private async Task SendIdentifyAsync(Intent[] intents = null)
         {
+            intents ??= new[] { Intent.AT_MESSAGES };
+            int intent = 0;
+            foreach (var it in intents)
+            {
+                intent |= (int)it;
+            }
             Console.WriteLine("发送鉴权");
             var data = new
             {
@@ -320,9 +367,30 @@ namespace Masuda.Net
                 {
                     token = $"{_appId}.{_token}",
                     //这个要读配置
-                    intents = 1 << 30,
+                    //intents = 1 << 30,
+                    intents = intent,
                     shared = new[] { 0, 1 },
                     properties = new {}
+                }
+            };
+            await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// 鉴权消息
+        /// </summary>
+        /// <returns></returns>
+        private async Task SendReconnectAsync()
+        {
+            Console.WriteLine("发送重连");
+            var data = new
+            {
+                op = Opcode.Resume,
+                d = new
+                {
+                    token = $"{_appId}.{_token}",
+                    seq = _lastS,
+                    session_id = _sessionId,
                 }
             };
             await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -337,12 +405,17 @@ namespace Masuda.Net
                     _lastS = data.GetProperty("s").GetInt32();
                     if (_lastS == 1)
                     {
+                        _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
                         _timer = new Timer
-                       (new TimerCallback(async _ => await SendHeartBeat()),
+                       (new TimerCallback(async _ => await SendHeartBeatAsync()),
                        null, 1000, _heartbeatInterval - 1000);
                     }
                     else
                     {
+                        if (data.TryGetProperty("t", out var t) && t.GetString() == "RESUMED")
+                        {
+                            return;
+                        }
                         Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
                         ListenMessage?.Invoke(this, message);
                         //string aa = message.Content;
@@ -372,13 +445,14 @@ namespace Masuda.Net
                     _lastS = data.GetProperty("s").GetInt32();
                     break;
                 case Opcode.Reconnect:
+                    await SendReconnectAsync();
                     break;
                 case Opcode.InvalidSession:
                     break;
                 case Opcode.Hello:
                     _heartbeatInterval = data.GetProperty("d")
                         .GetProperty("heartbeat_interval").GetInt32();
-                    await SendIdentify();
+                    await SendIdentifyAsync();
                     break;
                 case Opcode.HeartbeatACK:
                     break;

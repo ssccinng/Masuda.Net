@@ -99,6 +99,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 消息创建时间
         /// </summary>
+        [JsonPropertyName("fields")]
         public MessageEmbedField[] Fields { get; set; }
     }
 
@@ -107,6 +108,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 图片地址
         /// </summary>
+        [JsonPropertyName("url")]
         public string Url { get; set; }
     }
 
@@ -115,6 +117,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 字段名
         /// </summary>
+        [JsonPropertyName("name")]
         public string Name { get; set; }
     }
 
@@ -123,6 +126,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 下载地址
         /// </summary>
+        [JsonPropertyName("url")]
         public string Url { get; set; }
     }
 
@@ -136,6 +140,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// kv值列表
         /// </summary>
+        [JsonPropertyName("kv")]
         public MessageArkKv[] Kv { get; set; }
     }
     public class MessageArkKv
@@ -143,14 +148,17 @@ namespace Masuda.Net.Models
         /// <summary>
         /// key
         /// </summary>
+        [JsonPropertyName("key")]
         public string Key { get; set; }
         /// <summary>
         /// value
         /// </summary>
+        [JsonPropertyName("value")]
         public string value { get; set; }
         /// <summary>
         /// ark obj类型的列表
         /// </summary>
+        [JsonPropertyName("obj")]
         public MessageArkObj[] Obj { get; set; }    
     }
     public class MessageArkObj
@@ -163,10 +171,12 @@ namespace Masuda.Net.Models
         /// <summary>
         /// key
         /// </summary>
+        [JsonPropertyName("key")]
         public string Key { get; set; }
         /// <summary>
         /// value
         /// </summary>
+        [JsonPropertyName("value")]
         public string value { get; set; }
 
     }

@@ -24,7 +24,7 @@ namespace Masuda.Net
         /// 心跳计时器
         /// </summary>
         private Timer _timer;
-
+        private string _sessionId = null;
         public event Action<MasudaBot, Message> ListenMessage;
         public MasudaBot(int appId, string appKey, string token)
         {

@@ -18,6 +18,7 @@ namespace Masuda.Net.HelpMessage
         /// <summary>
         /// 所创建的频道身份组对象
         /// </summary>
+        [JsonPropertyName("role")]
         public Role Role { get; set; }
     }
 
@@ -36,6 +37,7 @@ namespace Masuda.Net.HelpMessage
         /// <summary>
         /// 所创建的频道身份组对象
         /// </summary>
+        [JsonPropertyName("role")]
         public Role Role { get; set; }
     }
 
@@ -44,10 +46,12 @@ namespace Masuda.Net.HelpMessage
         /// <summary>
         /// Wss链接
         /// </summary>
+        [JsonPropertyName("url")]
         public string Url { get; set; }
         /// <summary>
         /// 建议分片数
         /// </summary>
+        [JsonPropertyName("shards")]
         public int Shards   { get; set; }
         /// <summary>
         /// 创建Session限制信息
@@ -62,10 +66,12 @@ namespace Masuda.Net.HelpMessage
         /// <summary>
         /// 每 24 小时可创建 Session 数
         /// </summary>
+        [JsonPropertyName("total")]
         public int Total { get; set; }
         /// <summary>
         /// 目前还可以创建的 Session 数
         /// </summary>
+        [JsonPropertyName("remaining")]
         public int Remaining { get; set; }
         /// <summary>
         /// 重置计数的剩余时间(ms)

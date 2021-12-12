@@ -104,6 +104,7 @@ namespace Masuda.Net.Models
         /// <summary>
         /// 位置，且不与其他子频道重复
         /// </summary>
+        [JsonPropertyName("position")]
         public int Position { get; set; }
         /// <summary>
         /// 分组Id
