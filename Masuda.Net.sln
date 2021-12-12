@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Masuda.Net", "Masuda.Net\Masuda.Net.csproj", "{D6A2C2BF-767C-496A-8B45-2CC6A9B076C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBot", "TestBot\TestBot.csproj", "{AAAD6BD2-0931-4654-A800-1EB9C8D71D65}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6A2C2BF-767C-496A-8B45-2CC6A9B076C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6A2C2BF-767C-496A-8B45-2CC6A9B076C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6A2C2BF-767C-496A-8B45-2CC6A9B076C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6A2C2BF-767C-496A-8B45-2CC6A9B076C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAAD6BD2-0931-4654-A800-1EB9C8D71D65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAAD6BD2-0931-4654-A800-1EB9C8D71D65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAAD6BD2-0931-4654-A800-1EB9C8D71D65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAAD6BD2-0931-4654-A800-1EB9C8D71D65}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9AD9DDD6-662A-4786-B67F-B6A44588D51F}
+	EndGlobalSection
+EndGlobal
