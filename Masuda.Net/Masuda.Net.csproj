@@ -6,6 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Description>QQ频道机器人SDK</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/ssccinng/Masuda.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ssccinng/Masuda.Net</RepositoryUrl>
+    <PackageIcon>2_BigPic.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\admin\OneDrive\图片\2_BigPic.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
