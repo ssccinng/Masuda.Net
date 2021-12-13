@@ -1,5 +1,16 @@
 # QQ频道机器人官方接口（C#）
-实现了一个简易的C#的接口封装，由于目前消息权限卡的很死，需要配置语料才能发送，请注意
+实现了一个简易的C#的接口封装，由于目前消息权限卡的很死，需要配置语料才能发送，请注意。
+- 个人开发者需要用ReplyMessageAsync以回复的方式发送消息，回复的消息目前必须与语料配置完全一致才能发出去(tx你在干什么啊tx)。
+- appid是int类型，appkey，token是string类型，目前appkey不是必须要的值可以随意填入。其他两个按自己的bot信息填入。
+- 未来接口可能还会有比较大的改动，请注意。
+- 有疑问欢迎提出issue或联系QQ1078995020
+
+## 说明
+目前本项目依赖于.NET6，未来可能考虑加入之前版本的包。
+
+本项目力图提供极简风格的api，以实现尽可能少的代码完成bot配置，可参考以下例子。
+
+由于目前很多接口由于过于严格的审核机制导致测试起来很麻烦，目前关于消息方面仅提供简单的文字回复接口，未来测试完毕后会更新。
 
 ## 例子
 以下为回复一条消息的简单实现
@@ -9,10 +20,14 @@ using Masuda.Net;
 MasudaBot MasudaBot
     = new(appid, appkey, token);
 
+// 配置回复事件模板
 MasudaBot.AtMessageAction += async (bot, msg, type) => 
 { 
+    // 回复时触发的函数
     await bot.ReplyMessageAsync(msg, "muda");
 };
+
+// 阻塞程序，可以用其他任何方法
 while (true)
 {
     await Task.Delay(10000);
