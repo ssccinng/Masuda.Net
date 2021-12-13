@@ -123,6 +123,16 @@ namespace Masuda.Net
             return await res.Content.ReadFromJsonAsync<Announces>();
         }
         /// <summary>
+        /// 创建子频道公告 机器人设置消息为指定子频道公告
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <returns></returns>
+        public async Task<Announces> CreateAnnouncesAsync(Message message)
+        {
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/announces", new { message_id = message.Id });
+            return await res.Content.ReadFromJsonAsync<Announces>();
+        }
+        /// <summary>
         /// 机器人删除指定子频道公告
         /// </summary>
         /// <param name="channelId"></param>
@@ -131,6 +141,17 @@ namespace Masuda.Net
         public async Task DeleteAnnouncesAsync(string channelId, string messageId)
         {
             await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/announces/{messageId}");
+        }
+
+        /// <summary>
+        /// 机器人删除指定子频道公告
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public async Task DeleteAnnouncesAsync(Message message)
+        {
+            await _httpClient.DeleteAsync($"{_testUrl}/channels/{message.ChannelId}/announces/{message.Id}");
         }
         #endregion
 
@@ -205,9 +226,63 @@ namespace Masuda.Net
 
         public async Task<Message> SendMessageAsync(Message message, string content)
         {
-            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content });
+            return await SendMessageAsync(message.ChannelId, content);
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content });
+            //return await res.Content.ReadFromJsonAsync<Message>();
+        }
+
+        public async Task<Message> SendMessageAsync(Channel channel, string content)
+        {
+            return await SendMessageAsync(channel.Id, content);
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channel.Id}/messages", new { content = content });
+            //return await res.Content.ReadFromJsonAsync<Message>();
+        }
+        #region TEST
+
+        public async Task<Message> SendEmbedMessageAsync(Message message, MessageEmbed embed)
+        {
+            //return await SendMessageAsync(channel.Id, content);
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { embed = embed });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
             return await res.Content.ReadFromJsonAsync<Message>();
         }
+        public async Task<Message> SendArkMessageAsync(Message message, MessageArk ark)
+        {
+            //return await SendMessageAsync(channel.Id, content);
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { ark = ark });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
+        public async Task<Message> ReplyArkMessageAsync(Message message, MessageArk ark)
+        {
+            //return await SendMessageAsync(channel.Id, content);
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { ark = ark, msg_id = message.Id });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
+
+        public async Task<Message> ReplyEmbedMessageAsync(Message message, MessageEmbed embed)
+        {
+            //return await SendMessageAsync(channel.Id, content);
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { embed = embed, msg_id = message.Id });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
+
+
+        #endregion
 
 
         public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
@@ -223,13 +298,40 @@ namespace Masuda.Net
 
         public async Task<Message> ReplyMessageAsync(Message message, string content)
         {
+            return await ReplyMessageAsync(message.ChannelId, content, message.Id);
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            //return await res.Content.ReadFromJsonAsync<Message>();
+        }
 
-            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
-            if (!res.IsSuccessStatusCode)
+        public async Task<Message> ReplyMessageAsync(Message message, MessageEmbed messageEmbed = null, MessageArk messageArk = null, MessageBase[] messageBases = null)
+        {
+            //if (messageBases.Length == 0) return null;
+            if (messageBases != null)
             {
-                Console.WriteLine(await res.Content.ReadAsStringAsync());
+                foreach (var messageb in messageBases)
+                {
+                    switch (messageb)
+                    {
+                        case AtMessage atMessage:
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
-            return await res.Content.ReadFromJsonAsync<Message>();
+            
+            return null;
+            //return await ReplyMessageAsync(message.ChannelId, content, message.Id);
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            //return await res.Content.ReadFromJsonAsync<Message>();
         }
         /// <summary>
         /// 获取指定Id消息
@@ -419,6 +521,7 @@ namespace Masuda.Net
                         switch (type)
                         {
                             case "READY":
+                                _timer?.Dispose();
                                 _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
                                 _timer = new Timer
                                (new TimerCallback(async _ => await SendHeartBeatAsync()),
@@ -427,40 +530,41 @@ namespace Masuda.Net
                             case "RESUMED":
                                 break;
                             case "GUILD_CREATE":
-                                break;
                             case "GUILD_UPDATE":
-                                break;
                             case "GUILD_DELETE":
+                                Guild guild = JsonSerializer.Deserialize<Guild>(data.GetProperty("d").GetRawText());
+                                // 好像还得给个参数
+                                GuildAction?.Invoke(this, guild, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
                             case "CHANNEL_CREATE":
-                                break;
                             case "CHANNEL_UPDATE":
-                                break;
                             case "CHANNEL_DELETE":
+                                Channel channel = JsonSerializer.Deserialize<Channel>(data.GetProperty("d").GetRawText());
+                                // 好像还得给个参数
+                                ChannelAction?.Invoke(this, channel, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
                             case "GUILD_MEMBER_ADD":
-                                break;
                             case "GUILD_MEMBER_UPDATE":
-                                break;
                             case "GUILD_MEMBER_REMOVE":
+                                MemberWithGuildID memberWithGuildID = JsonSerializer.Deserialize<MemberWithGuildID>(data.GetProperty("d").GetRawText());
+                                // 好像还得给个参数
+                                GuildMembersAction?.Invoke(this, memberWithGuildID, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
                             case "MESSAGE_REACTION_ADD":
-                                break;
                             case "MESSAGE_REACTION_REMOVE":
                                 break;
                             case "DIRECT_MESSAGE_CREATE":
                                 break;
                             case "AUDIO_START":
-                                break;
                             case "AUDIO_FINISH":
-                                break;
                             case "AUDIO_ON_MIC":
-                                break;
                             case "AUDIO_OFF_MIC":
+                                AudioAction audioAction = JsonSerializer.Deserialize<AudioAction>(data.GetProperty("d").GetRawText());
+                                AudioAction?.Invoke(this, audioAction, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
                             case "AT_MESSAGE_CREATE":
                                 Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
-                                AtMessageAction?.Invoke(this, message);
+                                AtMessageAction?.Invoke(this, message, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
 
                             default:

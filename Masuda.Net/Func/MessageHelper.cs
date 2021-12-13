@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Masuda.Net.HelpMessage
+namespace Masuda.Net.Func
 {
-    public class MessageBase
+    internal class MessageHelper
     {
-        public string Content { get; set; }
     }
 }

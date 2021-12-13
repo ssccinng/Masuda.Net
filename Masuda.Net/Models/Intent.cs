@@ -18,4 +18,24 @@ namespace Masuda.Net.Models
         AUDIO_ACTION = 1 << 29,
         AT_MESSAGES = 1 << 30,
     }
+
+    public enum ActionType
+    {
+        GUILD_CREATE,
+        GUILD_UPDATE,
+        GUILD_DELETE,
+        CHANNEL_CREATE,
+        CHANNEL_UPDATE,
+        CHANNEL_DELETE,
+        GUILD_MEMBER_ADD,
+        GUILD_MEMBER_UPDATE,
+        GUILD_MEMBER_REMOVE,
+        MESSAGE_REACTION_ADD,
+        MESSAGE_REACTION_REMOVE,
+        DIRECT_MESSAGE_CREATE,
+        AUDIO_START,
+        AUDIO_FINISH,
+        AUDIO_OFF_MIC,
+        AT_MESSAGE_CREATE,
+    }
 }

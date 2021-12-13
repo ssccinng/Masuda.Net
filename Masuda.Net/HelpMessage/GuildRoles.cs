@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net.HelpMessage
 {
-    public class GuildRoles : MessageBase
+    public class GuildRoles
     {
         /// <summary>
         /// 频道Id

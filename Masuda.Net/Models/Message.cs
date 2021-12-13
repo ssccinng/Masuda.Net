@@ -85,12 +85,12 @@ namespace Masuda.Net.Models
         /// 标题
         /// </summary>
         [JsonPropertyName("title")]
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
         /// <summary>
         /// 消息弹窗内容
         /// </summary>
         [JsonPropertyName("prompt")]
-        public string Prompt { get; set; }
+        public string Prompt { get; set; } = "";
         /// <summary>
         /// 缩略图
         /// </summary>

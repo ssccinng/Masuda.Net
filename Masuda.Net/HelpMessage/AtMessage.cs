@@ -9,7 +9,7 @@ namespace Masuda.Net.HelpMessage
     /// <summary>
     /// 艾特用户的消息
     /// </summary>
-    public class AtMessage
+    public class AtMessage: MessageBase
     {
         private string _userId;
         public AtMessage(string userId)
@@ -19,6 +19,7 @@ namespace Masuda.Net.HelpMessage
         public override string ToString()
         {
             return $"<@{_userId}>";
+            //return $"<@!{_userId}>";
         }
     }
 }

@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net.HelpMessage
 {
-    public class MessageBase
+    public class ImageMessage: MessageBase
     {
-        public string Content { get; set; }
+        public string Url;
+        public ImageMessage(string url)
+        {
+            Url = url;
+        }
     }
 }

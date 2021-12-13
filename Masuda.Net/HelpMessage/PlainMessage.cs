@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net.HelpMessage
 {
-    public class MessageBase
+    public class PlainMessage: MessageBase
     {
-        public string Content { get; set; }
     }
 }

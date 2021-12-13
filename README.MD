@@ -9,7 +9,7 @@ using Masuda.Net;
 MasudaBot MasudaBot
     = new(appid, appkey, token);
 
-MasudaBot.AtMessageAction += async (bot, msg) => 
+MasudaBot.AtMessageAction += async (bot, msg, type) => 
 { 
     await bot.ReplyMessageAsync(msg, "muda");
 };
