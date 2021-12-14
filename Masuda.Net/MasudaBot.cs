@@ -34,7 +34,7 @@ namespace Masuda.Net
         public event Action<MasudaBot, MemberWithGuildID, ActionType> GuildMembersAction;
         public event Action<MasudaBot, Guild, ActionType> GuildAction;
         public event Action<MasudaBot, Channel, ActionType> ChannelAction;
-        public MasudaBot(int appId, string appKey, string token)
+        public MasudaBot(int appId, string appKey, string token, bool sendbox = false)
         {
             _apiKey = appKey;
             _token = token;
@@ -42,7 +42,8 @@ namespace Masuda.Net
             //"authorization", $"Bot {_appId}.{_token}"
             _httpClient.DefaultRequestHeaders.Authorization
                 = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot",$"{_appId}.{_token}");
-
+            if (sendbox)
+                _testUrl = "https://sandbox.api.sgroup.qq.com";
             WebSocketInit();
             //WebSocketInit().Wait();
             

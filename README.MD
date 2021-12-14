@@ -14,7 +14,7 @@
 1. VS2022通过Nuget包管理器搜索Masuda.Net即可安装
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
-dotnet add package Masuda.Net --version 1.1.0
+dotnet add package Masuda.Net
 ```
 
 ## 例子

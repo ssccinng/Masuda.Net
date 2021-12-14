@@ -482,14 +482,22 @@ namespace Masuda.Net
         }
         private async Task SendHeartBeatAsync()
         {
-            if (_webSocket.State == WebSocketState.Closed) return;
-            Console.WriteLine("发送心跳");
-            var data = new
+            try
             {
-                op = Opcode.Heartbeat,
-                s = _lastS
-            };
-            await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+                if (_webSocket.State == WebSocketState.Closed) return;
+                Console.WriteLine("发送心跳");
+                var data = new
+                {
+                    op = Opcode.Heartbeat,
+                    s = _lastS
+                };
+                await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+           
         }
         /// <summary>
         /// 鉴权消息
