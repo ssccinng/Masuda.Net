@@ -226,6 +226,11 @@ namespace Masuda.Net
             return await res.Content.ReadFromJsonAsync<Message>();
         }
 
+        //public async Task<Message> SendMessageAsync(string channelId, string content)
+        //{
+        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
+        //    return await res.Content.ReadFromJsonAsync<Message>();
+        //}
         public async Task<Message> SendMessageAsync(Message message, string content)
         {
             return await SendMessageAsync(message.ChannelId, content);
@@ -250,6 +255,11 @@ namespace Masuda.Net
         {
             message.Id = null;
             return await MessageCoreAsync(message, messageBases: pMessageBases);
+        }
+        public async Task<Message> SendMessageAsync(string channelId, params MessageBase[] pMessageBases)
+        {
+            //message.Id = null;
+            return await MessageCoreAsync(channelId, null, messageBases: pMessageBases);
         }
         #region TEST
 
@@ -330,7 +340,8 @@ namespace Masuda.Net
             }
             return await res.Content.ReadFromJsonAsync<Message>();
         }
-        private async Task<Message> MessageCoreAsync(Message message, MessageBase[] messageBases = null)
+
+        private async Task<Message> MessageCoreAsync(string channelId, string msgId, MessageBase[] messageBases = null)
         {
             //if (messageBases.Length == 0) return null;
             MessageSend msg = new MessageSend();
@@ -363,16 +374,62 @@ namespace Masuda.Net
                 if (content.Length > 0)
                     msg.Content = content.ToString();
             }
-            
-            
-            if (message.Id != null)
-                msg.MsgId = message.Id;
-            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", msg);
+
+
+            if (msgId != null)
+                msg.MsgId = msgId;
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", msg);
             if (!res.IsSuccessStatusCode)
             {
                 Console.WriteLine(await res.Content.ReadAsStringAsync());
             }
             return await res.Content.ReadFromJsonAsync<Message>();
+        }
+
+        private async Task<Message> MessageCoreAsync(Message message, MessageBase[] messageBases = null)
+        {
+            return await MessageCoreAsync(message.ChannelId, message.Id, messageBases);
+            //if (messageBases.Length == 0) return null;
+            //MessageSend msg = new MessageSend();
+            //if (messageBases != null)
+            //{
+            //    StringBuilder content = new();
+            //    foreach (var messageb in messageBases)
+            //    {
+            //        switch (messageb)
+            //        {
+            //            case AtMessage atMessage:
+            //                content.Append(atMessage);
+            //                break;
+            //            case ImageMessage imageMessage:
+            //                msg.Image = imageMessage.Url;
+            //                break;
+            //            case PlainMessage plainMessage:
+            //                content.Append(plainMessage);
+            //                break;
+            //            case MessageEmbed messageEmbed:
+            //                msg.Embed = messageEmbed;
+            //                break;
+            //            case MessageArk messageArk:
+            //                msg.Ark = messageArk;
+            //                break;
+            //            default:
+            //                break;
+            //        }
+            //    }
+            //    if (content.Length > 0)
+            //        msg.Content = content.ToString();
+            //}
+            
+            
+            //if (message.Id != null)
+            //    msg.MsgId = message.Id;
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", msg);
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            //return await res.Content.ReadFromJsonAsync<Message>();
         }
         /// <summary>
         /// 回复消息简洁版
@@ -383,6 +440,10 @@ namespace Masuda.Net
         public async Task<Message> ReplyMessageAsync(Message message, params MessageBase[] pMessageBases)
         {
             return await MessageCoreAsync(message, messageBases: pMessageBases);
+        }
+        public async Task<Message> ReplyMessageAsync(string channelId, string messageId, params MessageBase[] pMessageBases)
+        {
+            return await MessageCoreAsync(channelId, messageId, messageBases: pMessageBases);
         }
         /// <summary>
         /// 获取指定Id消息
