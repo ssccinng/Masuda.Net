@@ -18,7 +18,7 @@ namespace Masuda.Net.HelpMessage
         }
         public override string ToString()
         {
-            return $"<@{_userId}>";
+            return $"<@!{_userId}> ";
             //return $"<@!{_userId}>";
         }
     }

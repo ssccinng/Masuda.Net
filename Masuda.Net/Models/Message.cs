@@ -159,7 +159,7 @@ namespace Masuda.Net.Models
         /// ark obj类型的列表
         /// </summary>
         [JsonPropertyName("obj")]
-        public MessageArkObj[] Obj { get; set; }    
+        public MessageArkObj[] Obj { get; set; }
     }
     public class MessageArkObj
     {
@@ -179,5 +179,27 @@ namespace Masuda.Net.Models
         [JsonPropertyName("value")]
         public string value { get; set; }
 
+    }
+    public class MessageSend
+    {
+        [JsonPropertyName("content")]
+        public string Content { get; set; }
+        /// <summary>
+        /// 嵌入消息
+        /// </summary>
+        [JsonPropertyName("embed")]
+        public MessageEmbed Embed { get; set; }
+        /// <summary>
+        /// 模板消息
+        /// </summary>
+        [JsonPropertyName("ark")]
+        public MessageArk Ark { get; set; }
+        /// <summary>
+        /// 图片url地址
+        /// </summary>
+        [JsonPropertyName("image")]
+        public string Image { get; set; }
+        [JsonPropertyName("msg_id")]
+        public string MsgId { get; set; }
     }
 }

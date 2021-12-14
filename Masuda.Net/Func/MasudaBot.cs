@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 using Masuda.Net.HelpMessage;
 using System.Net.WebSockets;
+using System.Threading;
 
 namespace Masuda.Net
 {
@@ -307,31 +308,61 @@ namespace Masuda.Net
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
 
+        public async Task<Message> ReplyMessageAsync(Message message, string content, ImageMessage imageMessage)
+        {
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new {  msg_id = message.Id,  image = imageMessage.Url });
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
         public async Task<Message> ReplyMessageAsync(Message message, MessageEmbed messageEmbed = null, MessageArk messageArk = null, MessageBase[] messageBases = null)
         {
             //if (messageBases.Length == 0) return null;
+            MessageSend msg = new MessageSend();
             if (messageBases != null)
             {
+                StringBuilder content = new();
                 foreach (var messageb in messageBases)
                 {
                     switch (messageb)
                     {
                         case AtMessage atMessage:
+                            content.Append(atMessage);
+                            break;
+                        case ImageMessage imageMessage:
+                            msg.Image = imageMessage.Url;
+                            break;
+                        case PlainMessage plainMessage:
+                            content.Append(plainMessage);
                             break;
                         default:
                             break;
                     }
                 }
+                if (content.Length > 0)
+                    message.Content = content.ToString();
             }
-            
-            return null;
-            //return await ReplyMessageAsync(message.ChannelId, content, message.Id);
-            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
-            //if (!res.IsSuccessStatusCode)
-            //{
-            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
-            //}
-            //return await res.Content.ReadFromJsonAsync<Message>();
+            msg.Embed = messageEmbed;
+            msg.Ark = messageArk;
+            msg.MsgId = message.Id;
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", msg);
+            if (!res.IsSuccessStatusCode)
+            {
+                Console.WriteLine(await res.Content.ReadAsStringAsync());
+            }
+            return await res.Content.ReadFromJsonAsync<Message>();
+        }
+        /// <summary>
+        /// 回复消息简洁版
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="pmessageBases"></param>
+        /// <returns></returns>
+        public async Task<Message> ReplyMessageAsync(Message message, params MessageBase[] pMessageBases)
+        {
+            return await ReplyMessageAsync(message, messageBases: pMessageBases);
         }
         /// <summary>
         /// 获取指定Id消息
@@ -451,6 +482,7 @@ namespace Masuda.Net
         }
         private async Task SendHeartBeatAsync()
         {
+            if (_webSocket.State == WebSocketState.Closed) return;
             Console.WriteLine("发送心跳");
             var data = new
             {
@@ -522,6 +554,7 @@ namespace Masuda.Net
                         {
                             case "READY":
                                 _timer?.Dispose();
+                                //_timer
                                 _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
                                 _timer = new Timer
                                (new TimerCallback(async _ => await SendHeartBeatAsync()),
