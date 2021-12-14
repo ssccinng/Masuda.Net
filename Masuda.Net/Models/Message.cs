@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Masuda.Net.HelpMessage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -79,7 +80,7 @@ namespace Masuda.Net.Models
         [JsonPropertyName("ark")]
         public MessageArk Ark { get; set; }
     }
-    public class MessageEmbed
+    public class MessageEmbed: MessageBase
     {
         /// <summary>
         /// 标题
@@ -130,7 +131,7 @@ namespace Masuda.Net.Models
         public string Url { get; set; }
     }
 
-    public class MessageArk
+    public class MessageArk: MessageBase
     {
         /// <summary>
         /// ark模板Id(需要申请)

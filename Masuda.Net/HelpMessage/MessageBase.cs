@@ -8,6 +8,7 @@ namespace Masuda.Net.HelpMessage
 {
     public class MessageBase
     {
-        public string Content { get; set; }
+        
+        public string Content;
     }
 }
