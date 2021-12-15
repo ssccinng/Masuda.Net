@@ -13,8 +13,10 @@ namespace Masuda.Net.Models
     {
         GUILDS = 1 << 0,
         GUILD_MEMBERS = 1 << 1,
+        NORMAL_MESSAGES = 1 << 9,
         GUILD_MESSAGE_REACTIONS = 1 << 10,
         DIRECT_MESSAGE = 1 << 12,
+        FORUM_EVENT = 1 << 28,
         AUDIO_ACTION = 1 << 29,
         AT_MESSAGES = 1 << 30,
     }

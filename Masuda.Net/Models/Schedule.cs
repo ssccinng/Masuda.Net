@@ -60,6 +60,7 @@ namespace Masuda.Net.Models
         /// 日程提醒类型
         /// </summary>
         [JsonPropertyName("remind_type")]
-        public RemindType RemindType { get; set; }
+        public string RemindType { get; set; }
+        //public RemindType RemindType { get; set; }
     }
 }
