@@ -29,7 +29,7 @@ namespace Masuda.Net
         /// </summary>
         private Timer _timer;
         private string _sessionId = null;
-        private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS};
+        private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.NORMAL_MESSAGES};
 
         private Dictionary<string, string> _guildName = new();
         private Dictionary<string, string> _channelName = new();
