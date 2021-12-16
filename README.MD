@@ -29,9 +29,9 @@ GetPureMessage(msg.Content);
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
 # .net5
-dotnet add package Masuda.Net --version 5.0.1
+dotnet add package Masuda.Net --version 5.0.2
 # .net6
-dotnet add package Masuda.Net --version 6.0.1
+dotnet add package Masuda.Net --version 6.0.2
 ```
 
 ## 例子
