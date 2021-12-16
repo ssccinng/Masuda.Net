@@ -20,7 +20,7 @@ namespace Masuda.Net.HelpMessage
         /// 身份组
         /// </summary>
         [JsonPropertyName("roles")]
-        public Role Roles { get; set; }
+        public Role[] Roles { get; set; }
         /// <summary>
         /// 默认分组上限
         /// </summary>

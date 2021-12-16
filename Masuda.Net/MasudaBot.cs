@@ -31,7 +31,13 @@ namespace Masuda.Net
         private string _sessionId = null;
         private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS};
 
+        private Dictionary<string, string> _guildName = new();
+        private Dictionary<string, string> _channelName = new();
+        private bool _log = false;
+
+
         public event Action<MasudaBot, Message, ActionType> AtMessageAction;
+        public event Action<MasudaBot, Message, ActionType> MessageAction;
         public event Action<MasudaBot, Message, ActionType> NormalMessageAction;
         public event Action<MasudaBot, AudioAction, ActionType> AudioAction;
         public event Action<MasudaBot, Message, ActionType> DircetAction;
@@ -48,12 +54,14 @@ namespace Masuda.Net
         /// <param name="token"></param>
         /// <param name="sendbox"></param>
         /// <param name="shardId">不给则默认全接受</param>
+        /// <param name="log">是否给出log</param>
         /// <param name=""></param>
-        public MasudaBot(int appId, string appKey, string token, bool sendbox = false, int shardId = 0, Intent[] intents = null)
+        public MasudaBot(int appId, string appKey, string token, bool sendbox = false, int shardId = 0, Intent[] intents = null, bool log = false)
         {
             _apiKey = appKey;
             _token = token;
             _appId = appId;
+            _log = log;
             //"authorization", $"Bot {_appId}.{_token}"
             _httpClient.DefaultRequestHeaders.Authorization
                 = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot",$"{_appId}.{_token}");

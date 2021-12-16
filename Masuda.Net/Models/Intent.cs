@@ -13,6 +13,9 @@ namespace Masuda.Net.Models
     {
         GUILDS = 1 << 0,
         GUILD_MEMBERS = 1 << 1,
+        /// <summary>
+        /// 需要申请私域 非at消息
+        /// </summary>
         NORMAL_MESSAGES = 1 << 9,
         GUILD_MESSAGE_REACTIONS = 1 << 10,
         DIRECT_MESSAGE = 1 << 12,
@@ -39,5 +42,6 @@ namespace Masuda.Net.Models
         AUDIO_FINISH,
         AUDIO_OFF_MIC,
         AT_MESSAGE_CREATE,
+        MESSAGE_CREATE,
     }
 }

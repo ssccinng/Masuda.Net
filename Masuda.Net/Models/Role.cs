@@ -28,6 +28,12 @@ namespace Masuda.Net.Models
         /// </summary>
         [JsonPropertyName("color")]
         public uint Color   { get; set; }
+        [JsonIgnore]
+        public string HexColor
+        {
+            get => Color.ToString("X");
+            set => Color = uint.Parse(value.Replace("#", "").Replace("0x", "").Replace("0X", ""), System.Globalization.NumberStyles.HexNumber);
+        }
         /// <summary>
         /// 是否在成员列表中单独展示: 0-否, 1-是
         /// </summary>
