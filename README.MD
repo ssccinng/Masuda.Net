@@ -83,7 +83,7 @@ BotSetting BotSetting = new BotSetting
     SandBox = false,
     Log = true,
     // 为-1则默认不分片
-    ShardId = -1;
+    ShardId = -1
 };
 MasudaBot masudaBot = new MasudaBot(BotSetting);
 
