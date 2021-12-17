@@ -9,7 +9,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/ssccinng/Masuda.Net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ssccinng/Masuda.Net</RepositoryUrl>
-    <PackageIcon>2_BigPic.png</PackageIcon>
+    <!--<PackageIcon>2_BigPic.png</PackageIcon>-->
     <PackageLicenseExpression>MIT OR Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <AssemblyVersion></AssemblyVersion>
