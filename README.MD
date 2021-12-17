@@ -3,7 +3,7 @@
 - ~~个人开发者需要用ReplyMessageAsync以回复的方式发送消息，回复的消息目前必须与语料配置完全一致才能发出去(tx你在干什么啊tx)。~~
 - 上条作废，在沙箱环境中目前可以任意回复。(niiiice)
 - 如果不行请在官方管理平台 [https://bot.q.qq.com/] 完成语料配置再测试
-- 日程官方似乎还未实装功能
+- ~~日程官方似乎还未实装功能~~
 - appid是int类型，appkey，token是string类型，目前appkey不是必须要的值可以随意填入。其他两个按自己的bot信息填入。
 - 如果遇到权限问题请尝试踢出机器人再重新加入
 - 未来接口可能还会有比较大的改动，请注意。
@@ -22,7 +22,7 @@
 - uint类型的Color可以用类似0x1AC456这样赋值，本SDK中也提供了HexColor的属性值来通过字符串设定
 - 收到了AT消息后可以通过以下函数获取去除at消息后的内容
 ``` C#
-    GetPureMessage(msg.Content);
+    MessageHelper.GetPureMessage(msg.Content);
 ```
 -  x.0.3及版之后可以直接传入msg进行at
 ``` C#
