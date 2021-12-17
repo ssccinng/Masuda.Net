@@ -11,7 +11,9 @@ namespace Masuda.Net.HelpMessage
         public string Url;
         public ImageMessage(string url)
         {
-            Url = url;
+            //Url = System.Web.HttpUtility.UrlEncode(url); ;
+            Url = Uri.EscapeUriString(url); 
+            //Url = Uri.UnescapeDataString(url); ;
         }
     }
 }

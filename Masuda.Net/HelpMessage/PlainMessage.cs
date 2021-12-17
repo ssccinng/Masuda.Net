@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Masuda.Net.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,10 @@ namespace Masuda.Net.HelpMessage
         public PlainMessage (string content)
         {
             Content = content;
+        }
+
+        public PlainMessage(Message message): this(message.Content)
+        {
         }
         public override string ToString()
         {

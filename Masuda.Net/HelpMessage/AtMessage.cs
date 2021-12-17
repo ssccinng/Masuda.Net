@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Masuda.Net.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,18 @@ namespace Masuda.Net.HelpMessage
         {
             _userId = userId;
         }
+
+        public AtMessage(Message message): this(message.Author.Id)
+        {
+        }
+        public AtMessage(User user) : this(user.Id)
+        {
+        }
+        public AtMessage(Member member) : this(member.User.Id)
+        {
+        }
+
+
         public override string ToString()
         {
             return $"<@!{_userId}> ";

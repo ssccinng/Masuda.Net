@@ -17,21 +17,25 @@
 ## 小功能
 - api中所用的时间戳，可以通过以下方法获取
 ``` C#
-DateTime.Now.ToMillisecond();
+    DateTime.Now.ToMillisecond();
 ```
 - uint类型的Color可以用类似0x1AC456这样赋值，本SDK中也提供了HexColor的属性值来通过字符串设定
 - 收到了AT消息后可以通过以下函数获取去除at消息后的内容
 ``` C#
-GetPureMessage(msg.Content);
+    GetPureMessage(msg.Content);
+```
+-  x.0.3及版之后可以直接传入msg进行at
+``` C#
+    await bot.ReplyMessageAsync(msg, new AtMessage(msg));
 ```
 ## 如何安装
 1. VS2022/19通过Nuget包管理器搜索Masuda.Net即可安装。vs19推荐使用5.x.x版本, vs22推荐使用6.x.x版本
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
 # .net5
-dotnet add package Masuda.Net --version 5.0.2
+dotnet add package Masuda.Net --version 5.0.7
 # .net6
-dotnet add package Masuda.Net --version 6.0.2
+dotnet add package Masuda.Net --version 6.0.7
 ```
 
 ## 例子
@@ -52,7 +56,12 @@ MasudaBot.AtMessageAction += async (bot, msg, type) =>
     // 回复文本
     await bot.ReplyMessageAsync(msg, "muda");
     // 组合消息
-    await bot.ReplyMessageAsync(msg, new PlainMessage("muda"), new AtMessage(msg.Author.Id));
+    await bot.ReplyMessageAsync(msg, new AtMessage(msg.Author.Id), new PlainMessage("muda"));
+    
+    // 多个参数自动拼接
+    await bot.ReplyMessageAsync(msg, new AtMessage(msg.Author.Id), new PlainMessage("muda"), new AtMessage(msg.Author.Id));
+    // 图片和文字目前不能一起传，若以后支持可向上面那样拼接, 另外一个消息只能带一张图，传入多个ImageMessage会覆盖
+    await bot.ReplyMessageAsync(msg, new ImageMessage("imgurl"));
     //
 };
 
@@ -64,12 +73,26 @@ while (true)
 ```
 ### 另有其他几种启动模式
 ``` C#
+/// x.0.7之后开始支持这样的启动方法
+BotSetting BotSetting = new BotSetting
+{
+    AppId = 0,
+    AppKey = "",
+    Token = "",
+    Intents = new[] { Intent.AT_MESSAGES },
+    SandBox = false,
+    Log = true,
+    // 为-1则默认不分片
+    ShardId = -1;
+};
+MasudaBot masudaBot = new MasudaBot(BotSetting);
+
 // 带命令行log输出
 MasudaBot MasudaBot
     = new(appid, appkey, token, log: true);
     
 // 指定权限
-// 默认会请求Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS三个权限, 如已开启了私域，可再请求Intent.NORMAL_MESSAGES权限
+// 默认会请求Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS四个权限, 如已开启了私域，可再请求Intent.NORMAL_MESSAGES权限
 MasudaBot MasudaBot
     = new(appid, appkey, token, intents: new[] { Intent.GUILDS, Intent.AT_MESSAGES});
 

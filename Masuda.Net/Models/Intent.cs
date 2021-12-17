@@ -38,6 +38,13 @@ namespace Masuda.Net.Models
         MESSAGE_REACTION_ADD,
         MESSAGE_REACTION_REMOVE,
         DIRECT_MESSAGE_CREATE,
+        THREAD_CREATE,     // 当用户创建主题时
+        THREAD_UPDATE,     // 当用户更新主题时
+        THREAD_DELETE,     // 当用户删除主题时
+        POST_CREATE,       // 当用户创建帖子时
+        POST_DELETE,       // 当用户删除帖子时
+        REPLY_CREATE,      // 当用户回复评论时
+        REPLY_DELETE,      // 当用户回复评论时
         AUDIO_START,
         AUDIO_FINISH,
         AUDIO_OFF_MIC,

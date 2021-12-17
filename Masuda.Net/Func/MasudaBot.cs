@@ -69,6 +69,8 @@ namespace Masuda.Net
             return null;
         }
 
+
+
         private async Task<string> GetGuildName(string Id)
         {
             if (_guildName.ContainsKey(Id)) return _guildName[Id];
@@ -485,6 +487,9 @@ namespace Masuda.Net
                         case PlainMessage plainMessage:
                             content.Append(plainMessage);
                             break;
+                        case EmojiMessage emojiMessage:
+                            content.Append(emojiMessage);
+                            break;
                         case MessageEmbed messageEmbed:
                             msg.Embed = messageEmbed;
                             break;
@@ -765,7 +770,7 @@ namespace Masuda.Net
             {
                 if (_webSocket.State == WebSocketState.Closed) return;
                 //Console.WriteLine("发送心跳");
-                SendLog("发送心跳");
+                //SendLog("发送心跳");
                 var data = new
                 {
                     op = Opcode.Heartbeat,
@@ -889,8 +894,19 @@ namespace Masuda.Net
                             case "MESSAGE_REACTION_REMOVE":
                                 MessageReaction messageReaction = JsonSerializer.Deserialize<MessageReaction>(data.GetProperty("d").GetRawText());
                                 GuildMessageReAction?.Invoke(this, messageReaction, (ActionType)Enum.Parse(typeof(ActionType), type));
+                                RecvLog(type);
                                 break;
                             case "DIRECT_MESSAGE_CREATE":
+                                
+                                break;
+                            case "THREAD_CREATE":
+                            case "THREAD_UPDATE":
+                            case "THREAD_DELETE":
+                            case "POST_CREATE":
+                            case "POST_DELETE":
+                            case "REPLY_CREATE":
+                            case "REPLY_DELETE":
+
                                 break;
                             case "AUDIO_START":
                             case "AUDIO_FINISH":
@@ -963,7 +979,8 @@ namespace Masuda.Net
                     _lastS = data.GetProperty("s").GetInt32();
                     break;
                 case Opcode.Reconnect:
-                    //_webSocket.CloseAsync();
+                    //await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "gg", CancellationToken.None);
+                    //throw new Exception("断连");
                     await SendReconnectAsync();
                     break;
                 case Opcode.InvalidSession:

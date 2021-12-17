@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net.Models
 {
+    
     public enum EmojiType
     {
         Default = 1,
@@ -27,5 +28,19 @@ namespace Masuda.Net.Models
         /// </summary>
         [JsonPropertyName("type")]
         public EmojiType Type { get; set; }
+
+        public override string ToString()
+        {
+            if (Type == EmojiType.Default)
+            {
+                return $"<emoji:{Id}>";
+            }
+            else
+            {
+                return Id;
+            }
+        }
+
+        
     }
 }

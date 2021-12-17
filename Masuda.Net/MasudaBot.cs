@@ -29,7 +29,7 @@ namespace Masuda.Net
         /// </summary>
         private Timer _timer;
         private string _sessionId = null;
-        private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.NORMAL_MESSAGES};
+        private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS};
 
         private Dictionary<string, string> _guildName = new();
         private Dictionary<string, string> _channelName = new();
@@ -41,6 +41,7 @@ namespace Masuda.Net
         public event Action<MasudaBot, Message, ActionType> NormalMessageAction;
         public event Action<MasudaBot, AudioAction, ActionType> AudioAction;
         public event Action<MasudaBot, Message, ActionType> DircetAction;
+        public event Action<MasudaBot, object, ActionType> ForumAction;
         public event Action<MasudaBot, MessageReaction, ActionType> GuildMessageReAction;
         public event Action<MasudaBot, MemberWithGuildID, ActionType> GuildMembersAction;
         public event Action<MasudaBot, Guild, ActionType> GuildAction;
@@ -56,22 +57,41 @@ namespace Masuda.Net
         /// <param name="shardId">不给则默认全接受</param>
         /// <param name="log">是否给出log</param>
         /// <param name=""></param>
-        public MasudaBot(int appId, string appKey, string token, bool sendbox = false, int shardId = 0, Intent[] intents = null, bool log = false)
+        public MasudaBot(int appId, string appKey, string token, bool sandbox = false, int shardId = -1, Intent[] intents = null, bool log = false)
         {
             _apiKey = appKey;
             _token = token;
             _appId = appId;
             _log = log;
+            _shardId = shardId;
             //"authorization", $"Bot {_appId}.{_token}"
             _httpClient.DefaultRequestHeaders.Authorization
                 = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot",$"{_appId}.{_token}");
-            if (sendbox)
+            if (sandbox)
                 _testUrl = "https://sandbox.api.sgroup.qq.com";
             if (intents != null)
                 _intents = intents;
             WebSocketInit();
             //WebSocketInit().Wait();
             
+        }
+
+        public MasudaBot(BotSetting botSetting): this(botSetting.AppId, botSetting.AppKey, botSetting.Token, botSetting.SandBox, botSetting.ShardId, botSetting.Intents, botSetting.Log)      
+        {
+            //_apiKey = botSetting.AppKey;
+            //_appId = botSetting.AppId;
+            //_token = botSetting.Token;
+            //_log = botSetting.Log;
+            //_shardId = botSetting.ShardId;
+            ////_intents = botSetting.Intents;
+            //_httpClient.DefaultRequestHeaders.Authorization
+            //    = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", $"{_appId}.{_token}");
+            //if (botSetting.SandBox)
+            //    _testUrl = "https://sandbox.api.sgroup.qq.com";
+            //if (botSetting.Intents != null)
+            //    _intents = botSetting.Intents;
+            //WebSocketInit();
+
         }
     }
 }
