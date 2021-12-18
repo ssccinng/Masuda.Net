@@ -33,9 +33,9 @@
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
 # .net5
-dotnet add package Masuda.Net --version 5.0.5
+dotnet add package Masuda.Net --version 5.0.6
 # .net6
-dotnet add package Masuda.Net --version 6.0.5
+dotnet add package Masuda.Net --version 6.0.6
 ```
 
 ## 例子
@@ -98,7 +98,7 @@ MasudaBot MasudaBot
 
 // 缺省参数也可以混用
 MasudaBot MasudaBot
-    = new(appid, appkey, token, log: true, intents: new[] { Intent.GUILDS, Intent.AT_MESSAGES});
+    = new(appid, appkey, token, log: true, intents: new[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.NORMAL_MESSAGES});
 
 
 // 普通消息事件注册

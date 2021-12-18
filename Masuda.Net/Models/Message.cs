@@ -142,7 +142,7 @@ namespace Masuda.Net.Models
         /// kv值列表
         /// </summary>
         [JsonPropertyName("kv")]
-        public MessageArkKv[] Kv { get; set; }
+        public List<MessageArkKv> Kv { get; set; }
     }
     public class MessageArkKv
     {
@@ -160,12 +160,12 @@ namespace Masuda.Net.Models
         /// ark obj类型的列表
         /// </summary>
         [JsonPropertyName("obj")]
-        public MessageArkObj[] Obj { get; set; }
+        public List<MessageArkObj> Obj { get; set; }
     }
     public class MessageArkObj
     {
         [JsonPropertyName("obj_kv")]
-        public MessageArkKv[] ObjKv { get; set; }
+        public List<MessageArkKv> ObjKv { get; set; }
     }
     public class MessageArkObjKv
     {

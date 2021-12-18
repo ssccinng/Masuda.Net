@@ -35,16 +35,42 @@ namespace Masuda.Net
         private Dictionary<string, string> _channelName = new();
         private bool _log = false;
 
-
+        /// <summary>
+        /// 收到At消息
+        /// </summary>
         public event Action<MasudaBot, Message, ActionType> AtMessageAction;
+        /// <summary>
+        /// 收到普通消息
+        /// </summary>
         public event Action<MasudaBot, Message, ActionType> MessageAction;
-        public event Action<MasudaBot, Message, ActionType> NormalMessageAction;
+        //public event Action<MasudaBot, Message, ActionType> NormalMessageAction;
+        /// <summary>
+        /// 音频事件
+        /// </summary>
         public event Action<MasudaBot, AudioAction, ActionType> AudioAction;
+        /// <summary>
+        /// 直接消息事件（未开放）
+        /// </summary>
         public event Action<MasudaBot, Message, ActionType> DircetAction;
+        /// <summary>
+        /// 论坛事件（未开放）
+        /// </summary>
         public event Action<MasudaBot, object, ActionType> ForumAction;
+        /// <summary>
+        /// 表情表态事件
+        /// </summary>
         public event Action<MasudaBot, MessageReaction, ActionType> GuildMessageReAction;
+        /// <summary>
+        /// 频道成员事件
+        /// </summary>
         public event Action<MasudaBot, MemberWithGuildID, ActionType> GuildMembersAction;
+        /// <summary>
+        /// 频道事件
+        /// </summary>
         public event Action<MasudaBot, Guild, ActionType> GuildAction;
+        /// <summary>
+        /// 子频道事件
+        /// </summary>
         public event Action<MasudaBot, Channel, ActionType> ChannelAction;
 
         /// <summary>
@@ -57,7 +83,7 @@ namespace Masuda.Net
         /// <param name="shardId">不给则默认全接受</param>
         /// <param name="log">是否给出log</param>
         /// <param name=""></param>
-        public MasudaBot(int appId, string appKey, string token, bool sandbox = false, int shardId = -1, Intent[] intents = null, bool log = false)
+        public MasudaBot(int appId, string appKey, string token, bool sandbox = false, int shardId = -1, Intent[] intents = null, bool log = true)
         {
             _apiKey = appKey;
             _token = token;

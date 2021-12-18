@@ -16,7 +16,7 @@ namespace Masuda.Net.Models
         public string Token { get; set; }
         public bool SandBox { get; set; } = false;
         public Intent[] Intents { get; set; } = null;
-        public bool Log { get; set; } = false;
+        public bool Log { get; set; } = true;
         public int ShardId { get; set; } = -1;
     }
 }
