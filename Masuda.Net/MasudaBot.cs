@@ -24,6 +24,7 @@ namespace Masuda.Net
         private int _appId;
         private string _apiKey;
         private string _token;
+
         //private string _testUrl = "https://sandbox.api.sgroup.qq.com";
         private string _testUrl = "https://api.sgroup.qq.com";
         private int _heartbeatInterval = 45000;
@@ -42,6 +43,8 @@ namespace Masuda.Net
         private Dictionary<string, string> _guildName = new();
         private Dictionary<string, string> _channelName = new();
         private bool _log = false;
+
+        private DateTime _lastUpdateTime = DateTime.MinValue;
 
         /// <summary>
         /// 收到At消息

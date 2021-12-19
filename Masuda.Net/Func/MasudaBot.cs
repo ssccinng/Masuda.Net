@@ -77,18 +77,21 @@ namespace Masuda.Net
             Guild guild = await GetGuildAsync(Id);
             if (guild != null)
             {
-                _channelName.TryAdd(Id, guild.Name);
+                _guildName.TryAdd(Id, guild.Name);
                 return guild.Name;
             }
             return null;
         }
         #region 频道API
         /// <summary>
-        /// 获取频道信息(暂不可用)
+        /// 获取频道信息
         /// </summary>
         /// <returns></returns>
         public async Task<Guild?> GetGuildAsync(string guildId)
         {
+            //var aa = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
+            //var vv = await aa.Content.ReadAsStringAsync();
+            //Console.WriteLine(vv);
             Guild? guild = await _httpClient.GetFromJsonAsync<Guild>($"{_testUrl}/guilds/{guildId}");
             if (guild == null) return null;
             return guild;
@@ -749,7 +752,12 @@ namespace Masuda.Net
                         var rcvBytes = new byte[25000];
                         var rcvBuffer = new ArraySegment<byte>(rcvBytes);
                         WebSocketReceiveResult rcvResult = await _webSocket.ReceiveAsync(rcvBuffer, CancellationToken.None);
-
+                        if (rcvResult.MessageType == WebSocketMessageType.Close)
+                        {
+                            SelfLog("连接已结束");
+                            //_webSocket.
+                            throw new Exception();
+                        }
                         if (rcvResult?.MessageType != WebSocketMessageType.Text)
                         {
                             Console.WriteLine("未知信息");
@@ -864,6 +872,9 @@ namespace Masuda.Net
                                null, 1000, _heartbeatInterval - 1000);
                                 break;
                             case "RESUMED":
+                                //_lastS = data.GetProperty("s").GetInt32();
+                                await SendHeartBeatAsync();
+                                RecvLog("重连成功");
                                 break;
                             case "GUILD_CREATE":
                             case "GUILD_UPDATE":
@@ -983,18 +994,29 @@ namespace Masuda.Net
                     break;
                 case Opcode.Resume:
                     _lastS = data.GetProperty("s").GetInt32();
+                   
+                    //await SendReconnectAsync();
                     break;
                 case Opcode.Reconnect:
                     //await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "gg", CancellationToken.None);
                     //throw new Exception("断连");
-                    await SendReconnectAsync();
+                    _lastUpdateTime = DateTime.Now;
+                    await SendHeartBeatAsync();
+                    //await SendReconnectAsync();
                     break;
                 case Opcode.InvalidSession:
                     break;
                 case Opcode.Hello:
                     _heartbeatInterval = data.GetProperty("d")
                         .GetProperty("heartbeat_interval").GetInt32();
-                    await SendIdentifyAsync();
+                    if (DateTime.Now - _lastUpdateTime > TimeSpan.FromSeconds(20))
+                    {
+                        await SendIdentifyAsync();
+                    }
+                    else
+                    {
+                        await SendReconnectAsync();
+                    }
                     break;
                 case Opcode.HeartbeatACK:
                     break;
