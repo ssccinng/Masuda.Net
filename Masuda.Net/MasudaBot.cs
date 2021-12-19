@@ -20,7 +20,7 @@ namespace Masuda.Net
 
     public partial class MasudaBot
     {
-        private HttpClient _httpClient = new();
+        private HttpClient _httpClient = new HttpClient();
         private int _appId;
         private string _apiKey;
         private string _token;
@@ -29,7 +29,7 @@ namespace Masuda.Net
         private string _testUrl = "https://api.sgroup.qq.com";
         private int _heartbeatInterval = 45000;
         private CancellationTokenSource _cts = new CancellationTokenSource(35000);
-        protected ClientWebSocket _webSocket = new();
+        protected ClientWebSocket _webSocket = new ClientWebSocket();
         private int _lastS = 1;
         private int _shardCnt = 1;
         private int _shardId = -1;
@@ -40,8 +40,8 @@ namespace Masuda.Net
         private string _sessionId = null;
         private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS};
         private Task _botTask;
-        private Dictionary<string, string> _guildName = new();
-        private Dictionary<string, string> _channelName = new();
+        private Dictionary<string, string> _guildName = new Dictionary<string, string>();
+        private Dictionary<string, string> _channelName = new Dictionary<string, string>();
         private bool _log = false;
 
         private DateTime _lastUpdateTime = DateTime.MinValue;
@@ -114,7 +114,7 @@ namespace Masuda.Net
         }
         public MasudaBot(int appId, string appKey, string token, BotType botType, int shardId = -1)
         {
-            BotSetting botSetting = new();
+            BotSetting botSetting = new BotSetting();
             botSetting.AppId = appId;
             botSetting.AppKey = appKey;
             botSetting.Token = token;

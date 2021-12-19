@@ -63,7 +63,7 @@ namespace Masuda.Net
             Channel channel = await GetChannelAsync(Id);
             if (channel != null)
             {
-                _channelName.TryAdd(Id, channel.Name);
+                _channelName.Add(Id, channel.Name);
                 return channel.Name;
             }
             return null;
@@ -77,7 +77,7 @@ namespace Masuda.Net
             Guild guild = await GetGuildAsync(Id);
             if (guild != null)
             {
-                _guildName.TryAdd(Id, guild.Name);
+                _guildName.Add(Id, guild.Name);
                 return guild.Name;
             }
             return null;
@@ -92,7 +92,9 @@ namespace Masuda.Net
             //var aa = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
             //var vv = await aa.Content.ReadAsStringAsync();
             //Console.WriteLine(vv);
-            Guild? guild = await _httpClient.GetFromJsonAsync<Guild>($"{_testUrl}/guilds/{guildId}");
+            var guild = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
+            //guild
+            Guild? guild = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
             if (guild == null) return null;
             return guild;
         }
