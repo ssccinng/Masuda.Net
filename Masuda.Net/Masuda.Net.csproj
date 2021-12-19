@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net472</TargetFramework>
     <!--<ImplicitUsings>enable</ImplicitUsings>-->
-    <Nullable>enable</Nullable>
+    <!--<Nullable>enable</Nullable>-->
     <Description>QQ频道机器人SDK</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/ssccinng/Masuda.Net</PackageProjectUrl>
@@ -14,7 +14,7 @@
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <AssemblyVersion></AssemblyVersion>
     <FileVersion></FileVersion>
-    <Version>5.0.7</Version>
+    <Version>4.7.2</Version>
     <PackageReadmeFile>README.MD</PackageReadmeFile>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Authors>scixing</Authors>
@@ -33,6 +33,8 @@
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
   </ItemGroup>
 
 </Project>

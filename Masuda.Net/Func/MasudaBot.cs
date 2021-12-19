@@ -87,14 +87,14 @@ namespace Masuda.Net
         /// 获取频道信息
         /// </summary>
         /// <returns></returns>
-        public async Task<Guild?> GetGuildAsync(string guildId)
+        public async Task<Guild> GetGuildAsync(string guildId)
         {
             //var aa = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
             //var vv = await aa.Content.ReadAsStringAsync();
             //Console.WriteLine(vv);
-            var guild = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
+            Guild guild = await _httpClient.GetFromJsonAsync<Guild>($"{_testUrl}/guilds/{guildId}");
             //guild
-            Guild? guild = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
+            //Guild? guild = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
             if (guild == null) return null;
             return guild;
         }
@@ -129,8 +129,9 @@ namespace Masuda.Net
         }
         public async Task<ModifyRolesRes> ModifyRolesAsync(string guildId, string roleId, Filter filter, Info info)
         {
-            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/roles/{roleId}", JsonContent.Create(new { filter = filter, info = info }));
-            return await res.Content.ReadFromJsonAsync<ModifyRolesRes>();
+            return null;
+            //var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/roles/{roleId}", JsonContent.Create(new { filter = filter, info = info }));
+            //return await res.Content.ReadFromJsonAsync<ModifyRolesRes>();
         }
         /// <summary>
         /// 删除身份组
@@ -484,7 +485,7 @@ namespace Masuda.Net
             MessageSend msg = new MessageSend();
             if (messageBases != null)
             {
-                StringBuilder content = new();
+                StringBuilder content = new StringBuilder();
                 foreach (var messageb in messageBases)
                 {
                     switch (messageb)
@@ -678,12 +679,13 @@ namespace Masuda.Net
 
         public async Task<Schedule> ModifyScheduleAsync(string channelId, string scheduleId)
         {
-            var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}", JsonContent.Create(scheduleId) );
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(res.Content.ReadAsStringAsync());
-            }
-            return await res.Content.ReadFromJsonAsync<Schedule>();
+            return null;
+            //var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}", JsonContent.Create(scheduleId) );
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(res.Content.ReadAsStringAsync());
+            //}
+            //return await res.Content.ReadFromJsonAsync<Schedule>();
         }
         public async Task<Schedule> ModifyScheduleAsync(Channel channel, string scheduleId)
         {
@@ -792,7 +794,8 @@ namespace Masuda.Net
                     op = Opcode.Heartbeat,
                     s = _lastS
                 };
-                await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+                
+                await _webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data))), WebSocketMessageType.Text, true, CancellationToken.None);
             }
             catch (Exception e)
             {
@@ -806,7 +809,12 @@ namespace Masuda.Net
         /// <returns></returns>
         private async Task SendIdentifyAsync(Intent[] intents = null)
         {
-            intents ??= new[] { Intent.AT_MESSAGES };
+            if (intents == null)
+            {
+                intents = new[] { Intent.AT_MESSAGES };
+
+            }
+            //intents ??= new[] { Intent.AT_MESSAGES };
             int intent = 0;
             foreach (var it in _intents)
             {
@@ -827,7 +835,7 @@ namespace Masuda.Net
                     properties = new {}
                 }
             };
-            await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+            await _webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data))), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
         /// <summary>
@@ -848,7 +856,7 @@ namespace Masuda.Net
                     session_id = _sessionId,
                 }
             };
-            await _webSocket.SendAsync(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data)), WebSocketMessageType.Text, true, CancellationToken.None);
+            await _webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data))), WebSocketMessageType.Text, true, CancellationToken.None);
         }
         private async Task ExcuteCommand(byte[] msgBytes)
         {

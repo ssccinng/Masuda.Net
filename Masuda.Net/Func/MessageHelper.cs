@@ -20,9 +20,9 @@ namespace Masuda.Net
             return Regex.Replace(content, "<!.+?>", "").Trim();
         }
 
-        public static T GetFromJsonAsync<T>(this HttpClient httpClent)
-        {
+        //public static T GetFromJsonAsync<T>(this HttpClient httpClent)
+        //{
 
-        }
+        //}
     }
 }

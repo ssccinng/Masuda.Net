@@ -50,7 +50,7 @@ namespace Masuda.Net.HelpMessage
             foreach (var item in list)
             {
                 var v = new MessageArkObj();
-                v.ObjKv = new();
+                v.ObjKv = new List<MessageArkKv>();
                 v.ObjKv.Add(new MessageArkKv { Key = "desc", value = item.Desc });
                 if (item.Link != null)
                 {
