@@ -18,7 +18,7 @@ namespace Masuda.Net
     {
 
 
-        private static async Task<bool> HttpLog(HttpResponseMessage httpResponseMessage)
+        private static async Task<bool> HttpLogAsync(HttpResponseMessage httpResponseMessage)
         {
             if (httpResponseMessage == null) return false;
             Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
@@ -57,7 +57,7 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        private async Task<string> GetChannelName(string Id)
+        private async Task<string> GetChannelNameAsync(string Id)
         {
             if (_channelName.ContainsKey(Id)) return _channelName[Id];
             Channel channel = await GetChannelAsync(Id);
@@ -71,7 +71,7 @@ namespace Masuda.Net
 
 
 
-        private async Task<string> GetGuildName(string Id)
+        private async Task<string> GetGuildNameAsync(string Id)
         {
             if (_guildName.ContainsKey(Id)) return _guildName[Id];
             Guild guild = await GetGuildAsync(Id);
@@ -119,7 +119,7 @@ namespace Masuda.Net
         public async Task<CreateRoleRes> CreateRoleAsync(string guildId, Filter filter, Info info)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/roles", new { filter = filter, info = info });
-            await HttpLog(res);
+            await HttpLogAsync(res);
             return await res.Content.ReadFromJsonAsync<CreateRoleRes>();
         }
         public async Task<ModifyRolesRes> ModifyRolesAsync(string guildId, string roleId, Filter filter, Info info)
@@ -150,7 +150,7 @@ namespace Masuda.Net
             if (channelId == null)
             {
                 var aaa = await _httpClient.PutAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", JsonContent.Create(new { }));
-                await HttpLog(aaa);
+                await HttpLogAsync(aaa);
             }
             else
             {
@@ -197,6 +197,12 @@ namespace Masuda.Net
             }
 
         }
+
+
+        //public async bool IsInRole(string guildId, string userId)
+        //{
+
+        //}
         #endregion
 
         #region 成员API
@@ -243,7 +249,7 @@ namespace Masuda.Net
             //await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/announces/{messageId}");
             var aaa = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/announces/{messageId}");
             SendLog($"删除公告 (msgId: {messageId})");
-            await HttpLog(aaa);
+            await HttpLogAsync(aaa);
         }
 
         /// <summary>
@@ -325,7 +331,7 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task ModifyChannelPermissionsAsync(string channelId, string userId, string add = "0", string remove = "0")
         {
-            SendLog($"修改用户子频道权限 {await GetChannelName(channelId)} (userId: {userId})");
+            SendLog($"修改用户子频道权限 {await GetChannelNameAsync(channelId)} (userId: {userId})");
             await _httpClient.PutAsJsonAsync<object>($"{_testUrl}/channels/{channelId}/members/{userId}/permissions", new { add = add, remove = remove });
         }
 
@@ -437,12 +443,12 @@ namespace Masuda.Net
         public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
         {
             return await MessageCoreAsync(channelId, msgId, new[] { new PlainMessage(content) });
-            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content, msg_id = msgId });
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(await res.Content.ReadAsStringAsync());
-            }
-            return await res.Content.ReadFromJsonAsync<Message>();
+            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content, msg_id = msgId });
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            //return await res.Content.ReadFromJsonAsync<Message>();
         }
 
         public async Task<Message> ReplyMessageAsync(Message message, string content)
@@ -513,7 +519,7 @@ namespace Masuda.Net
                 Console.WriteLine(await res.Content.ReadAsStringAsync());
             }
             //await htt
-            SendLog($"{await GetChannelName(channelId)} {msg.Content}");
+            SendLog($"{await GetChannelNameAsync(channelId)} {msg.Content}");
             return await res.Content.ReadFromJsonAsync<Message>();
         }
 
@@ -610,7 +616,7 @@ namespace Masuda.Net
             //    Console.WriteLine(await tt.Content.ReadAsStringAsync());
             //    return null;
             //}
-            await HttpLog(tt);
+            await HttpLogAsync(tt);
             //var ddd = await tt.Content.ReadAsStringAsync();
             return await _httpClient.GetFromJsonAsync<List<Schedule>>($"{_testUrl}/channels/{channelId}/schedules");
         }
@@ -919,13 +925,13 @@ namespace Masuda.Net
                                 Message atmessage = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
                                 AtMessageAction?.Invoke(this, atmessage, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 RecvLog(
-                                    $"[{await GetGuildName(atmessage.GuildId)}({await GetChannelName(atmessage.ChannelId)})] {atmessage.Author.Username}({atmessage.Author.Id}): {atmessage.Content}");
+                                    $"[{await GetGuildNameAsync(atmessage.GuildId)}({await GetChannelNameAsync(atmessage.ChannelId)})] {atmessage.Author.Username}({atmessage.Author.Id}): {atmessage.Content}");
                                 break;
                             case "MESSAGE_CREATE":
                                 Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
                                 MessageAction?.Invoke(this, message, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 RecvLog(
-                                    $"{type} {await GetGuildName(message.GuildId)}({await GetChannelName(message.ChannelId)}) {message.Author.Username}({message.Author.Id}): {message.Content}");
+                                    $"{type} {await GetGuildNameAsync(message.GuildId)}({await GetChannelNameAsync(message.ChannelId)}) {message.Author.Username}({message.Author.Id}): {message.Content}");
                                 break;
 
                             default:

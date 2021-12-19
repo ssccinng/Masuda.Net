@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <!--<ImplicitUsings>enable</ImplicitUsings>-->
     <Nullable>enable</Nullable>
     <Description>QQ频道机器人SDK</Description>
@@ -17,6 +17,7 @@
     <Version>5.0.6</Version>
     <PackageReadmeFile>README.MD</PackageReadmeFile>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <Authors>scixing</Authors>
   </PropertyGroup>
 
   <ItemGroup>

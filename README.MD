@@ -6,7 +6,7 @@
 - ~~日程官方似乎还未实装功能~~
 - appid是int类型，appkey，token是string类型，目前appkey不是必须要的值可以随意填入。其他两个按自己的bot信息填入。
 - 如果遇到权限问题请尝试踢出机器人再重新加入
-- 未来接口可能还会有比较大的改动，请注意。
+- ~~未来接口可能还会有比较大的改动，请注意。~~
 - 有疑问欢迎提出issue或联系QQ1078995020
 
 ## 说明
@@ -33,22 +33,26 @@
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
 # .net5
-dotnet add package Masuda.Net --version 5.0.6
+dotnet add package Masuda.Net --version 5.0.7
 # .net6
-dotnet add package Masuda.Net --version 6.0.6
+dotnet add package Masuda.Net --version 6.0.7
 ```
 
 ## 例子
 以下为回复一条消息的简单实现
 ``` C#
 using Masuda.Net;
+using Masuda.Net.Models;
 using Masuda.Net.HelpMessage;
 
 MasudaBot MasudaBot
     = new(appid, appkey, token);
-// 沙箱环境
-MasudaBot MasudaBot1
-    = new(appid, appkey, token, sandBox: true);
+
+// 现以加入默认配置 私域 简洁初始化
+MasudaBot MasudaBot2
+    = new(appid, appkey, token, BotType.Private);
+
+
 
 // 配置回复事件模板
 MasudaBot.AtMessageAction += async (bot, msg, type) => 
@@ -56,10 +60,10 @@ MasudaBot.AtMessageAction += async (bot, msg, type) =>
     // 回复文本
     await bot.ReplyMessageAsync(msg, "muda");
     // 组合消息
-    await bot.ReplyMessageAsync(msg, new AtMessage(msg.Author.Id), new PlainMessage("muda"));
+    await bot.ReplyMessageAsync(msg, new AtMessage(msg), new PlainMessage("muda"));
     
     // 多个参数自动拼接
-    await bot.ReplyMessageAsync(msg, new AtMessage(msg.Author.Id), new PlainMessage("muda"), new AtMessage(msg.Author.Id));
+    await bot.ReplyMessageAsync(msg, new AtMessage(msg), new PlainMessage("muda"), new AtMessage(msg));
     // 图片和文字目前不能一起传，若以后支持可向上面那样拼接, 另外一个消息只能带一张图，传入多个ImageMessage会覆盖
     await bot.ReplyMessageAsync(msg, new ImageMessage("imgurl"));
     //
@@ -86,7 +90,12 @@ BotSetting BotSetting = new BotSetting
     ShardId = -1
 };
 MasudaBot masudaBot = new MasudaBot(BotSetting);
-
+// 现以加入默认配置 公域
+MasudaBot MasudaBot3
+    = new(appid, appkey, token, BotType.Public);
+// 沙箱环境
+MasudaBot MasudaBot1
+    = new(appid, appkey, token, sandBox: true);
 // 带命令行log输出
 MasudaBot MasudaBot
     = new(appid, appkey, token, log: true);
@@ -127,4 +136,32 @@ public enum Intent
 }
 ```
 
+
+# Q&A
+- Q. 我想发一张图片应该要怎么写?  
+- A. 
+```C#
+// url为图片网络地址 目前暂时不能发本地图片 
+await bot.ReplyMessageAsync(msg, new ImageMessage(url));
+```
+当然，也支持这样
+```C#
+// url为图片网络地址 目前暂时不能发本地图片 
+await bot.ReplyMessageAsync(msg, new AtMessage(msg), new ImageMessage(url));
+```
+- Q. 我想获取非at消息应该怎么样申请权限?  
+- A. 
+```C#
+// 权限列表可以按需添加 
+MasudaBot MasudaBot
+    = new(appid, appkey, token, intents: new[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.NORMAL_MESSAGES});
+```
+- Q. 我想@人并发消息应该怎么写?
+- A. 
+```C#
+await bot.ReplyMessageAsync(msg, new AtMessage(msg), new PlainMessage("muda"));
+```
+
+- Q. 我想发送QQ表情应该怎么做
+- A. emoji可以直接用字符发送例如"♥", QQ表情官方还不支持发送。
 

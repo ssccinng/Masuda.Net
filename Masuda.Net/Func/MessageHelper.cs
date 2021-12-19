@@ -11,7 +11,7 @@ namespace Masuda.Net
     {
         public static long ToMillisecond(this DateTime dateTime)
         {
-            return (dateTime.Ticks - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerMillisecond;
+            return (dateTime.Ticks - new DateTime(1970, 1, 1, 8, 0, 0).Ticks) / TimeSpan.TicksPerMillisecond;
         }
 
         public static string GetPureMessage(string content)

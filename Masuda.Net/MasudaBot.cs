@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net
 {
+    public enum BotType
+    {
+        Public,
+        PublicSandBox,
+        Private,
+        PrivateSandBox,
+    }
+
     public partial class MasudaBot
     {
         private HttpClient _httpClient = new();
@@ -30,7 +38,7 @@ namespace Masuda.Net
         private Timer _timer;
         private string _sessionId = null;
         private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS};
-
+        private Task _botTask;
         private Dictionary<string, string> _guildName = new();
         private Dictionary<string, string> _channelName = new();
         private bool _log = false;
@@ -97,11 +105,56 @@ namespace Masuda.Net
                 _testUrl = "https://sandbox.api.sgroup.qq.com";
             if (intents != null)
                 _intents = intents;
-            WebSocketInit();
+            _botTask = WebSocketInit();
             //WebSocketInit().Wait();
             
         }
+        public MasudaBot(int appId, string appKey, string token, BotType botType, int shardId = -1)
+        {
+            BotSetting botSetting = new();
+            botSetting.AppId = appId;
+            botSetting.AppKey = appKey;
+            botSetting.Token = token;
 
+            switch (botType)
+            {
+                case BotType.PublicSandBox:
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
+                    botSetting.SandBox = true;
+                    break;
+                case BotType.Public:
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
+                    break;
+                case BotType.PrivateSandBox:
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
+                    botSetting.SandBox = true;
+                    break;
+                case BotType.Private:
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
+
+                    break;
+                default:
+                    break;
+            }
+
+
+
+            _apiKey = botSetting.AppKey;
+            _token = botSetting.Token;
+            _appId = botSetting.AppId;
+            _log = botSetting.Log;
+            _shardId = shardId;
+            //"authorization", $"Bot {_appId}.{_token}"
+            _httpClient.DefaultRequestHeaders.Authorization
+                = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", $"{_appId}.{_token}");
+            if (botSetting.SandBox)
+                _testUrl = "https://sandbox.api.sgroup.qq.com";
+            if (botSetting.Intents != null)
+                _intents = botSetting.Intents;
+            _botTask = WebSocketInit();
+            //WebSocketInit().Wait();
+
+        }
         public MasudaBot(BotSetting botSetting): this(botSetting.AppId, botSetting.AppKey, botSetting.Token, botSetting.SandBox, botSetting.ShardId, botSetting.Intents, botSetting.Log)      
         {
             //_apiKey = botSetting.AppKey;
