@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,6 +18,11 @@ namespace Masuda.Net
         public static string GetPureMessage(string content)
         {
             return Regex.Replace(content, "<!.+?>", "").Trim();
+        }
+
+        public static T GetFromJsonAsync<T>(this HttpClient httpClent)
+        {
+
         }
     }
 }
