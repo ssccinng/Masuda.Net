@@ -735,7 +735,11 @@ namespace Masuda.Net
         #region WebSocket
         private async Task WebSocketInit()
         {
-            var WssOption = GetWssUrlWithShared().Result;
+            //var WssOption = await GetWssUrlWithShared();
+            var res = (await _httpClient.GetFromJsonAsync<JsonElement>($"{_testUrl}/gateway/bot"));
+            _shardCnt = res.GetProperty("shards").GetInt32();
+            var WssOption = await GetWssUrlWithShared();
+            //return res.GetProperty("url").GetString();
             while (true)
             {
                 try
