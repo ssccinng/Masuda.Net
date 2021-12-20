@@ -31,10 +31,10 @@ namespace Masuda.Net.HelpMessage
             Kv = new List<MessageArkKv>
             {
                 new MessageArkKv {Key = "#PROMPT#", value = prompt },
-                new MessageArkKv {Key = "#MetaTitle#", value = metaTitle },
-                new MessageArkKv {Key = "#MetaCover#", value = metaCover },
-                new MessageArkKv {Key = "#MetaUrl#", value = metaUrl },
-                new MessageArkKv {Key = "#MetaSubtitle#", value = metaSubtitle },
+                new MessageArkKv {Key = "#METATITLE#", value = metaTitle },
+                new MessageArkKv {Key = "#METACOVER#", value = metaCover },
+                new MessageArkKv {Key = "#METAURL#", value = metaUrl },
+                new MessageArkKv {Key = "#METASUBTITLE#", value = metaSubtitle },
             };
         }
     }
