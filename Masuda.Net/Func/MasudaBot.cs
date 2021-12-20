@@ -903,8 +903,10 @@ namespace Masuda.Net
                             case "GUILD_MEMBER_ADD":
                             case "GUILD_MEMBER_UPDATE":
                             case "GUILD_MEMBER_REMOVE":
+                                var memberWithGuildID1 = data.GetProperty("d").GetRawText();
                                 MemberWithGuildID memberWithGuildID = JsonSerializer.Deserialize<MemberWithGuildID>(data.GetProperty("d").GetRawText());
                                 // 好像还得给个参数
+                                RecvLog(type);
                                 GuildMembersAction?.Invoke(this, memberWithGuildID, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 break;
                             case "MESSAGE_REACTION_ADD":
