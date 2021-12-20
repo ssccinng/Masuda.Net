@@ -31,7 +31,7 @@ namespace Masuda.Net.Models
         /// 成员加入时间
         /// </summary>
         [JsonPropertyName("joined_at")]
-        public DateTime joinedAt { get; set; }
+        public string joinedAt { get; set; }
     }
 
     public class MemberWithGuildID : Member
