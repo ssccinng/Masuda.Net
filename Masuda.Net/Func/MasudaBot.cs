@@ -89,9 +89,6 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task<Guild?> GetGuildAsync(string guildId)
         {
-            //var aa = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
-            //var vv = await aa.Content.ReadAsStringAsync();
-            //Console.WriteLine(vv);
             Guild? guild = await _httpClient.GetFromJsonAsync<Guild>($"{_testUrl}/guilds/{guildId}");
             if (guild == null) return null;
             return guild;
@@ -106,8 +103,6 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task<GuildRoles> GetGuildRolesAsync(string guildId)
         {
-            //var aa = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/roles");
-            //await HttpLog(aa);
             var res = await _httpClient.GetFromJsonAsync<GuildRoles>($"{_testUrl}/guilds/{guildId}/roles");
             
             return res;
@@ -160,19 +155,7 @@ namespace Masuda.Net
                 await _httpClient.PutAsJsonAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", new { channel = new Channel { Id = channelId } });
             }
         }
-        //public async Task AddMemberToRoleAsync(Member member, string roleId, string channelId = null)
-        //{
-        //    await AddMemberToRoleAsync()
-        //    if (channelId == null)
-        //    {
-        //        var aaa = await _httpClient.PutAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", JsonContent.Create(new { }));
-        //        await HttpLog(aaa);
-        //    }
-        //    else
-        //    {
-        //        await _httpClient.PutAsJsonAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", new { channel = new Channel { Id = channelId } });
-        //    }
-        //}
+
         /// <summary>
         /// 删除用户身份
         /// </summary>
@@ -360,11 +343,6 @@ namespace Masuda.Net
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
 
-        //public async Task<Message> SendMessageAsync(string channelId, string content)
-        //{
-        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
-        //    return await res.Content.ReadFromJsonAsync<Message>();
-        //}
         public async Task<Message> SendMessageAsync(Message message, string content)
         {
             return await SendMessageAsync(message.ChannelId, content);
@@ -395,63 +373,11 @@ namespace Masuda.Net
             //message.Id = null;
             return await MessageCoreAsync(channelId, null, messageBases: pMessageBases);
         }
-        #region TEST
-
-        //public async Task<Message> SendEmbedMessageAsync(Message message, MessageEmbed embed)
-        //{
-        //    //return await SendMessageAsync(channel.Id, content);
-        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { embed = embed });
-        //    if (!res.IsSuccessStatusCode)
-        //    {
-        //        Console.WriteLine(await res.Content.ReadAsStringAsync());
-        //    }
-        //    return await res.Content.ReadFromJsonAsync<Message>();
-        //}
-        //public async Task<Message> SendArkMessageAsync(Message message, MessageArk ark)
-        //{
-        //    //return await SendMessageAsync(channel.Id, content);
-        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { ark = ark });
-        //    if (!res.IsSuccessStatusCode)
-        //    {
-        //        Console.WriteLine(await res.Content.ReadAsStringAsync());
-        //    }
-        //    return await res.Content.ReadFromJsonAsync<Message>();
-        //}
-        //public async Task<Message> ReplyArkMessageAsync(Message message, MessageArk ark)
-        //{
-        //    //return await SendMessageAsync(channel.Id, content);
-        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { ark = ark, msg_id = message.Id });
-        //    if (!res.IsSuccessStatusCode)
-        //    {
-        //        Console.WriteLine(await res.Content.ReadAsStringAsync());
-        //    }
-        //    return await res.Content.ReadFromJsonAsync<Message>();
-        //}
-
-        //public async Task<Message> ReplyEmbedMessageAsync(Message message, MessageEmbed embed)
-        //{
-        //    //return await SendMessageAsync(channel.Id, content);
-        //    var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { embed = embed, msg_id = message.Id });
-        //    if (!res.IsSuccessStatusCode)
-        //    {
-        //        Console.WriteLine(await res.Content.ReadAsStringAsync());
-        //    }
-        //    return await res.Content.ReadFromJsonAsync<Message>();
-        //}
-
-
-        #endregion
-
 
         public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
         {
             return await MessageCoreAsync(channelId, msgId, new[] { new PlainMessage(content) });
-            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content, msg_id = msgId });
-            //if (!res.IsSuccessStatusCode)
-            //{
-            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
-            //}
-            //return await res.Content.ReadFromJsonAsync<Message>();
+
         }
 
         public async Task<Message> ReplyMessageAsync(Message message, string content)
@@ -614,13 +540,8 @@ namespace Masuda.Net
         {
             var tt = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/schedules{(since == null ? "" : $"?since={since}")}");
             
-            //if (!tt.IsSuccessStatusCode)
-            //{
-            //    Console.WriteLine(await tt.Content.ReadAsStringAsync());
-            //    return null;
-            //}
+
             await HttpLogAsync(tt);
-            //var ddd = await tt.Content.ReadAsStringAsync();
             return await _httpClient.GetFromJsonAsync<List<Schedule>>($"{_testUrl}/channels/{channelId}/schedules");
         }
         public async Task<List<Schedule>> GetSchedulesAsync(Channel channel, string since = null)
@@ -650,16 +571,8 @@ namespace Masuda.Net
         public async Task<Schedule> CreateScheduleAsync(string channelId, Schedule schedule)
         {
 
-            //var vv = await GetMeAsync();
-            //var gg = await GetSchedulesAsync(channelId);
-            //schedule.JumpChannelId = gg[0].JumpChannelId;
-            //schedule.Creator = await GetGuildMemberAsync(GuildId, vv.Id);
-            //gg[0].Id = null;
-            //gg[0].StartTimestamp = schedule.StartTimestamp;
-            //gg[0].EndTimestamp = schedule.EndTimestamp;
+          
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/schedules", new { schedule = schedule });
-            //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/schedules", new { name = "测试测试", description = "测试测试1", start_timestamp = schedule.StartTimestamp, end_timestamp = schedule.EndTimestamp, remind_type = "0" });
-            //var res = await _httpClient.PostAsync($"{_testUrl}/channels/{channelId}/schedules/", JsonContent.Create(schedule));
             if (!res.IsSuccessStatusCode)
             {
                 Console.WriteLine(await res.Content.ReadAsStringAsync());
@@ -954,41 +867,6 @@ namespace Masuda.Net
                                 break;
                         }
                     }
-                    //if (_lastS == 1)
-                    //{
-                    //    _sessionId = data.GetProperty("d").GetProperty("session_id").GetString();
-                    //    _timer = new Timer
-                    //   (new TimerCallback(async _ => await SendHeartBeatAsync()),
-                    //   null, 1000, _heartbeatInterval - 1000);
-                    //}
-                    //else
-                    //{
-
-                    //    if (data.TryGetProperty("t", out var t) && t.GetString() == "RESUMED")
-                    //    {
-
-                    //        return;
-                    //    }
-                    //    Message message = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
-                    //    ListenMessage?.Invoke(this, message);
-                    //    //string aa = message.Content;
-                    //    ////var aaaa = await GetMeGuildsAsync();
-                    //    ////foreach (var item in aaaa)
-                    //    ////{
-                    //    ////    Console.WriteLine(item.Name);
-                    //    ////    var cs = await GetChannelsAsync(item.Id);
-                    //    ////    foreach (var item1 in cs)
-                    //    ////    {
-                    //    ////        Console.WriteLine(item1.Name);
-                    //    ////    }
-                    //    ////}
-
-                    //    //var aaa = await ReplyMessage(message.ChannelId, "muda", message.Id);
-                    //    //await ReplyMessage(message.ChannelId, "muda", message.Id);
-                    //    //await ReplyMessage(message.ChannelId, "muda", message.Id);
-                    //    //var aaa = await SendMessage(message.ChannelId, "muda");
-                    //    //var aaa = await SendMessage("746444190235179419", "muda");
-                    //}
                     break;
                 case Opcode.Heartbeat:
                     break;

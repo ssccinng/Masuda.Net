@@ -101,7 +101,6 @@ namespace Masuda.Net
             _appId = appId;
             _log = log;
             _shardId = shardId;
-            //"authorization", $"Bot {_appId}.{_token}"
             _httpClient.DefaultRequestHeaders.Authorization
                 = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot",$"{_appId}.{_token}");
             if (sandbox)
@@ -109,7 +108,6 @@ namespace Masuda.Net
             if (intents != null)
                 _intents = intents;
             _botTask = WebSocketInit();
-            //WebSocketInit().Wait();
             
         }
         public MasudaBot(int appId, string appKey, string token, BotType botType, int shardId = -1)
@@ -147,7 +145,6 @@ namespace Masuda.Net
             _appId = botSetting.AppId;
             _log = botSetting.Log;
             _shardId = shardId;
-            //"authorization", $"Bot {_appId}.{_token}"
             _httpClient.DefaultRequestHeaders.Authorization
                 = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", $"{_appId}.{_token}");
             if (botSetting.SandBox)
@@ -155,24 +152,11 @@ namespace Masuda.Net
             if (botSetting.Intents != null)
                 _intents = botSetting.Intents;
             _botTask = WebSocketInit();
-            //WebSocketInit().Wait();
+
 
         }
         public MasudaBot(BotSetting botSetting): this(botSetting.AppId, botSetting.AppKey, botSetting.Token, botSetting.SandBox, botSetting.ShardId, botSetting.Intents, botSetting.Log)      
         {
-            //_apiKey = botSetting.AppKey;
-            //_appId = botSetting.AppId;
-            //_token = botSetting.Token;
-            //_log = botSetting.Log;
-            //_shardId = botSetting.ShardId;
-            ////_intents = botSetting.Intents;
-            //_httpClient.DefaultRequestHeaders.Authorization
-            //    = new System.Net.Http.Headers.AuthenticationHeaderValue("Bot", $"{_appId}.{_token}");
-            //if (botSetting.SandBox)
-            //    _testUrl = "https://sandbox.api.sgroup.qq.com";
-            //if (botSetting.Intents != null)
-            //    _intents = botSetting.Intents;
-            //WebSocketInit();
 
         }
     }

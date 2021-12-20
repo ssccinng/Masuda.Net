@@ -83,13 +83,13 @@ namespace Masuda.Net.HelpMessage
             TemplateId = 24;
             Kv = new List<MessageArkKv>
             {
-                new MessageArkKv {Key = "#desc#", value = desc },
-                new MessageArkKv {Key = "#prompt#", value = prompt },
-                new MessageArkKv {Key = "#title#", value = title },
-                new MessageArkKv {Key = "#metadesc#", value = metadesc },
-                new MessageArkKv {Key = "#img#", value = img },
-                new MessageArkKv {Key = "#link#", value = link },
-                new MessageArkKv {Key = "#subtitle#", value = subtitle },
+                new MessageArkKv {Key = "#DESC#", value = desc },
+                new MessageArkKv {Key = "#PROMPT#", value = prompt },
+                new MessageArkKv {Key = "#TITLE#", value = title },
+                new MessageArkKv {Key = "#METADESC#", value = metadesc },
+                new MessageArkKv {Key = "#IMG#", value = img },
+                new MessageArkKv {Key = "#LINK#", value = link },
+                new MessageArkKv {Key = "#SUBTITLE#", value = subtitle },
             };
         }
     }
