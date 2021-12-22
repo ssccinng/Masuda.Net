@@ -71,6 +71,22 @@ namespace Masuda.Net.Models
         /// </summary>
         KaiHei,
     }
+
+    public enum PrivateType
+    {
+        /// <summary>
+        /// 公开频道
+        /// </summary>
+        Public,
+        /// <summary>
+        /// 群主管理员可见
+        /// </summary>
+        Private,
+        /// <summary>
+        /// 群主管理员+指定成员
+        /// </summary>
+        PrivatePro,
+    }
     /// <summary>
     /// 子频道
     /// </summary>
@@ -117,6 +133,11 @@ namespace Masuda.Net.Models
         /// </summary>
         [JsonPropertyName("owner_id")]
         public string OwnerId { get; set; }
+        /// <summary>
+        /// 创建人Id
+        /// </summary>
+        [JsonPropertyName("private_type")]
+        public uint PrivateType { get; set; }
 
 
     }

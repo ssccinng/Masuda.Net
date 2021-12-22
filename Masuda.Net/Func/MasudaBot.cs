@@ -21,10 +21,10 @@ namespace Masuda.Net
         private static async Task<bool> HttpLogAsync(HttpResponseMessage httpResponseMessage)
         {
             if (httpResponseMessage == null) return false;
-            Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
+            //Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
-                //Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
+                Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
                 return false;
             }
             return true;
@@ -93,6 +93,102 @@ namespace Masuda.Net
             if (guild == null) return null;
             return guild;
         }
+
+        /// <summary>
+        /// 获取频道成员信息
+        /// </summary>
+        /// <param name="guildId">频道Id</param>
+        /// <param name="after">返回比after大的用户id</param>
+        /// <param name="limit">限制</param>
+        /// <returns></returns>
+        public async Task<List<Member>?> GetGuildMembersAsync(string guildId, string after = "0", uint limit = 1000)
+        {
+
+            return await _httpClient.GetFromJsonAsync<List<Member>>($"{_testUrl}/guilds/{guildId}/members?after={after}&limit={limit}");
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+
+        /// <summary>
+        /// 删除频道成员
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteGuildMemberAsync(string guildId, string userId)
+        {
+
+            var res = await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/members{userId}");
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+
+        /// <summary>
+        /// 禁言频道成员
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, string? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+
+            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timstamp = muteEndTimstamp }));
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, int? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+
+            return await MuteGuildMemberAsync(guildId, userId, muteSeconds.ToString(), muteEndTimstamp);
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildMemberAsync(Message message, string? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+            return await MuteGuildMemberAsync(message.GuildId, message.Author.Id, muteSeconds, muteEndTimstamp);
+
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildMemberAsync(Message message, int? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+            return await MuteGuildMemberAsync(message.GuildId, message.Author.Id, muteSeconds.ToString(), muteEndTimstamp);
+
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+
+
+        /// <summary>
+        /// 禁言频道成员
+        /// </summary>
+        /// <param name="guildId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<bool> MuteGuildAsync(string guildId, string? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+
+            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timstamp = muteEndTimstamp }));
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildAsync(string guildId, int? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+
+            return await MuteGuildAsync(guildId, muteSeconds.ToString(), muteEndTimstamp);
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildAsync(Message message, string? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+            return await MuteGuildAsync(message.GuildId, muteSeconds, muteEndTimstamp);
+
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
+        public async Task<bool> MuteGuildAsync(Message message, int? muteSeconds = null, string? muteEndTimstamp = null)
+        {
+            return await MuteGuildAsync(message.GuildId, muteSeconds.ToString(), muteEndTimstamp);
+
+            //return await response.Content.ReadFromJsonAsync<List<Member>>();
+        }
         #endregion
 
         #region 频道身份组API
@@ -133,6 +229,7 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task DeleteRoleAsync(string guildId, string roleId)
         {
+            //Encoding.Unicode.get
             await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/roles/{roleId}");
         }
         /// <summary>
@@ -294,6 +391,25 @@ namespace Masuda.Net
             return guild;
         }
 
+        public async Task<Channel> CreateChannelAsync(string guildId ,string name, ChannelType channelType, uint position, uint parentId)
+        {
+            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/channels", new {name = name, type = channelType, position = position, parentId = parentId});
+            await HttpLogAsync(res);
+            return await res.Content.ReadFromJsonAsync<Channel>();
+        }
+        public async Task<Channel> ModifyChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
+        {
+            var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}", JsonContent.Create(new { name = name, type = channelType, position = position, parentId = parentId }));
+            await HttpLogAsync(res);
+            return await res.Content.ReadFromJsonAsync<Channel>();
+        }
+        public async Task<bool> DeleteChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
+        {
+            var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}");
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+        }
+
         #endregion
 
         #region 子频道权限API
@@ -415,6 +531,9 @@ namespace Masuda.Net
                     {
                         case AtMessage atMessage:
                             content.Append(atMessage);
+                            break; 
+                        case NageToChannelMessage nageToChannelMessage:
+                            content.Append(nageToChannelMessage);
                             break;
                         case ImageMessage imageMessage:
                             msg.Image = imageMessage.Url;
@@ -514,8 +633,20 @@ namespace Masuda.Net
             //};
             //var response = await _httpClient.SendAsync(request);
             //var gs = await response.Content.ReadAsStringAsync();
-            var guilds = await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds");
-            return guilds;
+            if (before != null)
+            {
+                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?before={before}&limit={limit}");
+            }
+            else if (after != null)
+            {
+                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?after={after}limit={limit}");
+            }
+            else
+            {
+                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?limit={limit}");
+            }
+            
+            //return guilds;
             //if (guild == null) return null;
             //return guild;
         }
