@@ -16,7 +16,7 @@ namespace Masuda.Net
 
         public static string GetPureMessage(string content)
         {
-            return Regex.Replace(content, "<!.+?>", "").Trim();
+            return Regex.Replace(content, "<(@|#).+?>", "").Trim();
         }
     }
 }
