@@ -25,10 +25,40 @@ namespace Masuda.Net.Models
         /// </summary>
         [JsonPropertyName("permissions")]
         public string Permissions { get; set; }
+
+        public List<Permissions> PermissionsArray
+        {
+            get
+            {
+                List<Permissions> list = new List<Permissions>();
+                long ps = long.Parse(Permissions);
+                int idx = 0;
+                while (ps > 0)
+                {
+                    if ((ps & 1) == 1)
+                    {
+                        list.Add((Permissions)(1 << idx));
+                    }
+                    idx++;
+                }
+                return list;
+            }
+            set
+            {
+                long res = 0;
+                foreach (Permissions permission in value)
+                {
+                    res |= (long)permission;
+                }
+                Permissions = res.ToString();
+            }
+        }
     }
 
-    //public class Permissions
-    //{
-
-    //}
+    public enum Permissions
+    {
+        Look = 1 << 0,
+        Manager = 1 << 1,
+        Say = 1 << 2,
+    }
 }

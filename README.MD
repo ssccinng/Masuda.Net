@@ -166,4 +166,12 @@ await bot.ReplyMessageAsync(msg, new AtMessage(msg), new PlainMessage("muda"));
 
 - Q. 我想发送QQ表情应该怎么做
 - A. emoji可以直接用字符发送例如"♥", QQ表情官方还不支持发送。
+   
 
+- Q. 我想输出Log到文件应该怎么做
+- A. 
+
+```C#
+MasudaBot MasudaBot3
+    = new(appid, appkey, token, BotType.Public).LogTo((log) => File.AppendAllText("bot.log", log));
+```

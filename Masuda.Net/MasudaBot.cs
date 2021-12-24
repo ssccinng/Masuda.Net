@@ -159,5 +159,11 @@ namespace Masuda.Net
         {
 
         }
+        private Action<string> _logAction = Console.WriteLine;
+        public MasudaBot LogTo(Action<string> action)
+        {
+            _logAction = action;
+            return this;
+        }
     }
 }

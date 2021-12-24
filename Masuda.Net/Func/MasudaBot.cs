@@ -18,13 +18,14 @@ namespace Masuda.Net
     {
 
 
-        private static async Task<bool> HttpLogAsync(HttpResponseMessage httpResponseMessage)
+        private async Task<bool> HttpLogAsync(HttpResponseMessage httpResponseMessage)
         {
             if (httpResponseMessage == null) return false;
-            Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
+            //Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 //Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
+                SelfLog(await httpResponseMessage.Content.ReadAsStringAsync());
                 return false;
             }
             return true;
@@ -34,7 +35,9 @@ namespace Masuda.Net
         {
             if (_log)
             {
-                Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {content}");
+                //_logAction?.Invoke(content);
+                _logAction?.Invoke($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {content}");
+                //Console.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {content}");
             }
             
         }
@@ -57,7 +60,7 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
-        private async Task<string> GetChannelNameAsync(string Id)
+        private async ValueTask<string?> GetChannelNameAsync(string Id)
         {
             if (_channelName.ContainsKey(Id)) return _channelName[Id];
             Channel channel = await GetChannelAsync(Id);
@@ -71,10 +74,10 @@ namespace Masuda.Net
 
 
 
-        private async Task<string> GetGuildNameAsync(string Id)
+        private async ValueTask<string?> GetGuildNameAsync(string Id)
         {
             if (_guildName.ContainsKey(Id)) return _guildName[Id];
-            Guild guild = await GetGuildAsync(Id);
+            Guild? guild = await GetGuildAsync(Id);
             if (guild != null)
             {
                 _guildName.TryAdd(Id, guild.Name);
@@ -89,9 +92,9 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task<Guild?> GetGuildAsync(string guildId)
         {
-            Guild? guild = await _httpClient.GetFromJsonAsync<Guild>($"{_testUrl}/guilds/{guildId}");
-            if (guild == null) return null;
-            return guild;
+            var res = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Guild?>();
         }
 
         /// <summary>
@@ -104,7 +107,9 @@ namespace Masuda.Net
         public async Task<List<Member>?> GetGuildMembersAsync(string guildId, string after = "0", uint limit = 1000)
         {
 
-            return await _httpClient.GetFromJsonAsync<List<Member>>($"{_testUrl}/guilds/{guildId}/members?after={after}&limit={limit}");
+            var res = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/members?after={after}&limit={limit}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<List<Member>>();
             //return await response.Content.ReadFromJsonAsync<List<Member>>();
         }
 
@@ -129,23 +134,23 @@ namespace Masuda.Net
         /// <param name="guildId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, string? muteSeconds = null, string? muteEndTimstamp = null)
+        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, string? muteSeconds = null, string? muteEndTimestamp = null)
         {
 
-            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timstamp = muteEndTimstamp }));
+            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timestamp = muteEndTimestamp }));
             await HttpLogAsync(res);
             return res.IsSuccessStatusCode;
             //return await response.Content.ReadFromJsonAsync<List<Member>>();
         }
-        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, int? muteSeconds = null, string? muteEndTimstamp = null)
+        public async Task<bool> MuteGuildMemberAsync(string guildId, string userId, int? muteSeconds = null, string? muteEndTimestamp = null)
         {
 
-            return await MuteGuildMemberAsync(guildId, userId, muteSeconds.ToString(), muteEndTimstamp);
+            return await MuteGuildMemberAsync(guildId, userId, muteSeconds.ToString(), muteEndTimestamp);
             //return await response.Content.ReadFromJsonAsync<List<Member>>();
         }
-        public async Task<bool> MuteGuildMemberAsync(Message message, string? muteSeconds = null, string? muteEndTimstamp = null)
+        public async Task<bool> MuteGuildMemberAsync(Message message, string? muteSeconds = null, string? muteEndTimestamp = null)
         {
-            return await MuteGuildMemberAsync(message.GuildId, message.Author.Id, muteSeconds, muteEndTimstamp);
+            return await MuteGuildMemberAsync(message.GuildId, message.Author.Id, muteSeconds, muteEndTimestamp);
 
             //return await response.Content.ReadFromJsonAsync<List<Member>>();
         }
@@ -163,10 +168,10 @@ namespace Masuda.Net
         /// <param name="guildId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<bool> MuteGuildAsync(string guildId, string? muteSeconds = null, string? muteEndTimstamp = null)
+        public async Task<bool> MuteGuildAsync(string guildId, string? muteSeconds = null, string? muteEndTimestamp = null)
         {
           
-            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timstamp = muteEndTimstamp }));
+            var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/mute", JsonContent.Create(new { mute_seconds = muteSeconds, mute_end_timestamp = muteEndTimestamp }));
             await HttpLogAsync(res);
             return res.IsSuccessStatusCode;
             //return await response.Content.ReadFromJsonAsync<List<Member>>();
@@ -187,11 +192,13 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="guildId"></param>
         /// <returns></returns>
-        public async Task<GuildRoles> GetGuildRolesAsync(string guildId)
+        public async Task<GuildRoles?> GetGuildRolesAsync(string guildId)
         {
-            var res = await _httpClient.GetFromJsonAsync<GuildRoles>($"{_testUrl}/guilds/{guildId}/roles");
-            
-            return res;
+            //var res1 = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/roles");
+            //await HttpLogAsync(res1);
+            var res = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/roles");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<GuildRoles?>();
         }
         /// <summary>
         /// 创建频道身份组
@@ -200,16 +207,17 @@ namespace Masuda.Net
         /// <param name="filter">标识需要设置哪些字段</param>
         /// <param name="info">携带需要设置的字段内容</param>
         /// <returns></returns>
-        public async Task<CreateRoleRes> CreateRoleAsync(string guildId, Filter filter, Info info)
+        public async Task<CreateRoleRes?> CreateRoleAsync(string guildId, Filter filter, Info info)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/roles", new { filter = filter, info = info });
-            await HttpLogAsync(res);
-            return await res.Content.ReadFromJsonAsync<CreateRoleRes>();
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<CreateRoleRes?>();
         }
-        public async Task<ModifyRolesRes> ModifyRolesAsync(string guildId, string roleId, Filter filter, Info info)
+        public async Task<ModifyRolesRes?> ModifyRolesAsync(string guildId, string roleId, Filter filter, Info info)
         {
             var res = await _httpClient.PatchAsync($"{_testUrl}/guilds/{guildId}/roles/{roleId}", JsonContent.Create(new { filter = filter, info = info }));
-            return await res.Content.ReadFromJsonAsync<ModifyRolesRes>();
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<ModifyRolesRes?>();
         }
         /// <summary>
         /// 删除身份组
@@ -230,17 +238,20 @@ namespace Masuda.Net
         /// <param name="userId"></param>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        public async Task AddMemberToRoleAsync(string guildId, string userId, string roleId, string channelId = null)
+        public async Task<bool> AddMemberToRoleAsync(string guildId, string userId, string roleId, string channelId = null)
         {
             if (channelId == null)
             {
                 var aaa = await _httpClient.PutAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", JsonContent.Create(new { }));
                 await HttpLogAsync(aaa);
+                return aaa.IsSuccessStatusCode;
             }
             else
             {
-                await _httpClient.PutAsJsonAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", new { channel = new Channel { Id = channelId } });
+                var res = await _httpClient.PutAsJsonAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", new { channel = new Channel { Id = channelId } });
+                return res.IsSuccessStatusCode;
             }
+
         }
 
         /// <summary>
@@ -251,11 +262,13 @@ namespace Masuda.Net
         /// <param name="roleId"></param>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task DeleteMemberToRoleAsync(string guildId, string userId, string roleId, string channelId = null)
+        public async Task<bool> DeleteMemberToRoleAsync(string guildId, string userId, string roleId, string channelId = null)
         {
             if (channelId == null)
             {
-                await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}");
+                var res = await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}");
+                await HttpLogAsync(res);
+                return res.IsSuccessStatusCode;
             }
             else
             {
@@ -266,6 +279,8 @@ namespace Masuda.Net
                     Content = JsonContent.Create(new { channel = new Channel { Id = channelId } })
                 };
                 var response = await _httpClient.SendAsync(request);
+                await HttpLogAsync(response);
+                return response.IsSuccessStatusCode;
                 //await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/members/{userId}/roles/{roleId}", JsonContent.Create(new { }));
             }
 
@@ -279,11 +294,14 @@ namespace Masuda.Net
         #endregion
 
         #region 成员API
-        public async Task<Member> GetGuildMemberAsync(string guildId, string userId)
+        public async Task<Member?> GetGuildMemberAsync(string guildId, string userId)
         {
             //var vv =  await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/members/{userId}");
             //await HttpLog(vv);
-            return await _httpClient.GetFromJsonAsync<Member>($"{_testUrl}/guilds/{guildId}/members/{userId}");
+            var res = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/members/{userId}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Member>();
+
         }
         #endregion
 
@@ -293,18 +311,19 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task<Announces> CreateAnnouncesAsync(string channelId, string messageId)
+        public async Task<Announces?> CreateAnnouncesAsync(string channelId, string messageId)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/announces", new { message_id = messageId });
             SendLog($"创建公告 (msgId: {messageId})");
-            return await res.Content.ReadFromJsonAsync<Announces>();
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Announces?>();
         }
         /// <summary>
         /// 创建子频道公告 机器人设置消息为指定子频道公告
         /// </summary>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task<Announces> CreateAnnouncesAsync(Message message)
+        public async Task<Announces?> CreateAnnouncesAsync(Message message)
         {
             return await CreateAnnouncesAsync(message.ChannelId, message.Id);
             
@@ -317,12 +336,14 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="messageId"></param>
         /// <returns></returns>
-        public async Task DeleteAnnouncesAsync(string channelId, string messageId = null)
+        public async Task<bool> DeleteAnnouncesAsync(string channelId, string? messageId = null)
         {
             //await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/announces/{messageId}");
             var aaa = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/announces/{messageId ?? "all"}");
             SendLog($"删除公告 (msgId: {messageId})");
+
             await HttpLogAsync(aaa);
+            return aaa.IsSuccessStatusCode;
         }
 
         /// <summary>
@@ -330,9 +351,9 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task DeleteAnnouncesAsync(Message message)
+        public async Task<bool> DeleteAnnouncesAsync(Message message)
         {
-            await DeleteAnnouncesAsync(message.ChannelId, null);
+            return await DeleteAnnouncesAsync(message.ChannelId, null);
             //await _httpClient.DeleteAsync($"{_testUrl}/channels/{message.ChannelId}/announces/{message.Id}");
         }
         /// <summary>
@@ -346,7 +367,8 @@ namespace Masuda.Net
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/announces", new { channelId = channelId, message_id = messageId });
             SendLog($"创建全局公告 (msgId: {messageId})");
-            await HttpLogAsync(res);
+            //await HttpLogAsync(res);
+            if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Announces>();
         }
 
@@ -372,10 +394,12 @@ namespace Masuda.Net
         /// 获取频道的子频道列表
         /// </summary>
         /// <returns>子频道列表</returns>
-        public async Task<List<Channel>> GetChannelsAsync(string guildId)
+        public async Task<List<Channel>?> GetChannelsAsync(string guildId)
         {
-            var channels = await _httpClient.GetFromJsonAsync<List<Channel>>($"{_testUrl}/guilds/{guildId}/channels");
-            return channels;
+            var res = await _httpClient.GetAsync($"{_testUrl}/guilds/{guildId}/channels");
+
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<List<Channel>?>();
             //if (guild == null) return null;
             //return guild;
         }
@@ -405,22 +429,24 @@ namespace Masuda.Net
         /// 获取子频道信息
         /// </summary>
         /// <returns></returns>
-        public async Task<Channel> GetChannelAsync(string channelId)
+        public async Task<Channel?> GetChannelAsync(string channelId)
         {
-            Channel guild = await _httpClient.GetFromJsonAsync<Channel>($"{_testUrl}/channels/{channelId}");
-            return guild;
+            var res = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Channel?>();
         }
 
-        public async Task<Channel> CreateChannelAsync(string guildId ,string name, ChannelType channelType, uint position, uint parentId)
+        public async Task<Channel?> CreateChannelAsync(string guildId ,string name, ChannelType channelType, uint position, uint parentId)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/channels", new {name = name, type = channelType, position = position, parentId = parentId});
-            await HttpLogAsync(res);
+            if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Channel>();
         }
-        public async Task<Channel> ModifyChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
+        public async Task<Channel?> ModifyChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
         {
             var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}", JsonContent.Create(new { name = name, type = channelType, position = position, parentId = parentId }));
-            await HttpLogAsync(res);
+            //await HttpLogAsync(res);
+            if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Channel>();
         }
         public async Task<bool> DeleteChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
@@ -439,9 +465,12 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<ChannelPermissions> GetChannelPermissionsAsync(string channelId, string userId)
+        public async Task<ChannelPermissions?> GetChannelPermissionsAsync(string channelId, string userId)
         {
-            return await _httpClient.GetFromJsonAsync<ChannelPermissions>($"{_testUrl}/channels/{channelId}/members/{userId}/permissions");
+            var res = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/members/{userId}/permissions");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<ChannelPermissions>();
+
         }
         /// <summary>
         /// 修改用户子频道权限
@@ -451,10 +480,14 @@ namespace Masuda.Net
         /// <param name="add"></param>
         /// <param name="remove"></param>
         /// <returns></returns>
-        public async Task ModifyChannelPermissionsAsync(string channelId, string userId, string add = "0", string remove = "0")
+        public async Task<bool> ModifyChannelPermissionsAsync(string channelId, string userId, string? add = null, string? remove = null)
         {
             SendLog($"修改用户子频道权限 {await GetChannelNameAsync(channelId)} (userId: {userId})");
-            await _httpClient.PutAsJsonAsync<object>($"{_testUrl}/channels/{channelId}/members/{userId}/permissions", new { add = add, remove = remove });
+
+
+            var res = await _httpClient.PutAsJsonAsync<object>($"{_testUrl}/channels/{channelId}/members/{userId}/permissions", new { add = add, remove = remove });
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
         }
 
         #endregion
@@ -582,10 +615,11 @@ namespace Masuda.Net
             if (msgId != null)
                 msg.MsgId = msgId;
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", msg);
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(await res.Content.ReadAsStringAsync());
-            }
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            if (!await HttpLogAsync(res)) return null;
             //await htt
             SendLog($"{await GetChannelNameAsync(channelId)} {msg.Content}");
             return await res.Content.ReadFromJsonAsync<Message>();
@@ -615,21 +649,26 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="msgId"></param>
         /// <returns></returns>
-        public async Task<Message> GetMessageAsync(string channelId, string msgId)
+        public async Task<Message?> GetMessageAsync(string channelId, string msgId)
         {
-            return await _httpClient.GetFromJsonAsync<Message>($"{_testUrl}/channels/{channelId}/messages/{msgId}");
+            var res = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/messages/{msgId}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Message>();
+
         }
         #endregion
 
         #region 音频API
-        public async Task AudioControlAsync(string channelId, string url, STATUS STATUS = STATUS.START, string text = "")
+        public async Task<bool> AudioControlAsync(string channelId, string url, STATUS STATUS = STATUS.START, string text = "")
         {
 
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/audio", new AudioControl { AudioUrl = url, Text = text, Status = STATUS });
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(await res.Content.ReadAsStringAsync());
-            }
+            //if (!res.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+            //}
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
         #endregion
@@ -643,7 +682,7 @@ namespace Masuda.Net
         /// <param name="limit">暂时似乎无用</param>
         /// <returns>频道列表</returns>
 
-        public async Task<List<Guild>> GetMeGuildsAsync(string before = null, string after = null, int limit = 100)
+        public async Task<List<Guild>?> GetMeGuildsAsync(string? before = null, string? after = null, int limit = 100)
         {
             //var request = new HttpRequestMessage
             //{
@@ -653,19 +692,21 @@ namespace Masuda.Net
             //};
             //var response = await _httpClient.SendAsync(request);
             //var gs = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage res;
             if (before != null)
             {
-                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?before={before}&limit={limit}");
+                res = await _httpClient.GetAsync($"{_testUrl}/users/@me/guilds?before={before}&limit={limit}");
             }
             else if (after != null)
             {
-                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?after={after}limit={limit}");
+                res = await _httpClient.GetAsync($"{_testUrl}/users/@me/guilds?after={after}limit={limit}");
             }
             else
             {
-                return await _httpClient.GetFromJsonAsync<List<Guild>>($"{_testUrl}/users/@me/guilds?limit={limit}");
+                res = await _httpClient.GetAsync($"{_testUrl}/users/@me/guilds?limit={limit}");
             }
-            
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<List<Guild>>();
             //return guilds;
             //if (guild == null) return null;
             //return guild;
@@ -674,9 +715,11 @@ namespace Masuda.Net
         /// 获取机器人所在频道列表 // 还有其他参数
         /// </summary>
         /// <returns>频道列表</returns>
-        public async Task<User> GetMeAsync()
+        public async Task<User?> GetMeAsync()
         {
-            return await _httpClient.GetFromJsonAsync<User>($"{_testUrl}/users/@me");
+            var res = await _httpClient.GetAsync($"{_testUrl}/users/@me");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<User>();
             //if (guild == null) return null;
             //return guild;
         }
@@ -687,15 +730,15 @@ namespace Masuda.Net
         /// 获取频道日程列表
         /// </summary>
         /// <returns></returns>
-        public async Task <List<Schedule>> GetSchedulesAsync(string channelId, string since = null)
+        public async Task <List<Schedule>?> GetSchedulesAsync(string channelId, string since = null)
         {
             var tt = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/schedules{(since == null ? "" : $"?since={since}")}");
-            
 
-            await HttpLogAsync(tt);
+
+            if (!await HttpLogAsync(tt)) return null;
             return await _httpClient.GetFromJsonAsync<List<Schedule>>($"{_testUrl}/channels/{channelId}/schedules");
         }
-        public async Task<List<Schedule>> GetSchedulesAsync(Channel channel, string since = null)
+        public async Task<List<Schedule>?> GetSchedulesAsync(Channel channel, string since = null)
         {
             return await GetSchedulesAsync(channel.Id, since);
         }
@@ -705,9 +748,11 @@ namespace Masuda.Net
         /// </summary>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task<Schedule> GetScheduleAsync(string channelId, string scheduleId)
+        public async Task<Schedule?> GetScheduleAsync(string channelId, string scheduleId)
         {
-            return await _httpClient.GetFromJsonAsync<Schedule>($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}");
+            var res = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<Schedule>();
         }
         public async Task<Schedule> GetScheduleAsync(Channel channel, string scheduleId)
         {
@@ -719,16 +764,10 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="schedule">日程对象，不需要带id</param>
         /// <returns></returns>
-        public async Task<Schedule> CreateScheduleAsync(string channelId, Schedule schedule)
+        public async Task<Schedule?> CreateScheduleAsync(string channelId, Schedule schedule)
         {
-
-          
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/schedules", new { schedule = schedule });
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(await res.Content.ReadAsStringAsync());
-                return null;
-            }
+            if (!await HttpLogAsync(res)) return null;
             SendLog($"创建日程 {schedule.Name}");
             return await res.Content.ReadFromJsonAsync<Schedule>();
         }
@@ -738,13 +777,10 @@ namespace Masuda.Net
             return await CreateScheduleAsync(channel.Id, schedule: schedule);
         }
 
-        public async Task<Schedule> ModifyScheduleAsync(string channelId, string scheduleId)
+        public async Task<Schedule?> ModifyScheduleAsync(string channelId, string scheduleId)
         {
             var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}", JsonContent.Create(scheduleId) );
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(res.Content.ReadAsStringAsync());
-            }
+            if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Schedule>();
         }
         public async Task<Schedule> ModifyScheduleAsync(Channel channel, string scheduleId)
@@ -752,16 +788,13 @@ namespace Masuda.Net
             return await ModifyScheduleAsync(channel.Id, scheduleId);
         }
 
-        public async Task<Schedule> DeleteScheduleAsync(string channelId, string scheduleId)
+        public async Task<bool> DeleteScheduleAsync(string channelId, string scheduleId)
         {
             var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/schedules/{scheduleId}");
-            if (!res.IsSuccessStatusCode)
-            {
-                Console.WriteLine(res.Content.ReadAsStringAsync());
-            }
-            return await res.Content.ReadFromJsonAsync<Schedule>();
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
         }
-        public async Task<Schedule> DeleteScheduleAsync(Channel channel, string scheduleId)
+        public async Task<bool> DeleteScheduleAsync(Channel channel, string scheduleId)
         {
             return await DeleteScheduleAsync(channel.Id, scheduleId);
         }
