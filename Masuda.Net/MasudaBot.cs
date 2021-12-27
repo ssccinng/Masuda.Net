@@ -157,7 +157,7 @@ namespace Masuda.Net
         }
         public MasudaBot(BotSetting botSetting): this(botSetting.AppId, botSetting.AppKey, botSetting.Token, botSetting.SandBox, botSetting.ShardId, botSetting.Intents, botSetting.Log)      
         {
-
+            
         }
         private Action<string> _logAction = Console.WriteLine;
         public MasudaBot LogTo(Action<string> action)
