@@ -851,7 +851,7 @@ namespace Masuda.Net
         #region WebSocket
         private async Task WebSocketInit()
         {
-            var WssOption = GetWssUrlWithShared().Result;
+            var WssOption = await GetWssUrlWithShared();
             while (true)
             {
                 try
