@@ -35,9 +35,9 @@ __注意，使用沙箱模式时有可能会遇到 websocket link not exist 的�
 2. 在项目命令行中输入(需要.net环境)
 ``` ps
 # .net5
-dotnet add package Masuda.Net --version 5.0.7
+dotnet add package Masuda.Net --version 5.0.10
 # .net6
-dotnet add package Masuda.Net --version 6.0.7
+dotnet add package Masuda.Net --version 6.0.10
 ```
 
 ## 例子
