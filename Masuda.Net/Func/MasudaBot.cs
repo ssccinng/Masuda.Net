@@ -656,6 +656,29 @@ namespace Masuda.Net
             return await res.Content.ReadFromJsonAsync<Message>();
 
         }
+
+        /// <summary>
+        /// 撤回消息
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="msgId"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteMessageAsync(string channelId, string msgId)
+        {
+            var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/messages/{msgId}");
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+        }
+        /// <summary>
+        /// 撤回消息
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteMessageAsync(Message message)
+        {
+            return await DeleteMessageAsync(message.ChannelId, message.Id);
+        }
+
         #endregion
 
         #region 音频API
