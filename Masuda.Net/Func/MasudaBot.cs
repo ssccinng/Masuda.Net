@@ -376,7 +376,7 @@ namespace Masuda.Net
         {
             return await CreateGuildAnnouncesAsync(message.GuildId, message.ChannelId, message.Id);
         }
-        public async Task<bool> DeleteGuildAnnouncesAsync(string guildId, string messageId)
+        public async Task<bool> DeleteGuildAnnouncesAsync(string guildId, string messageId = "all")
         {
             var res = await _httpClient.DeleteAsync($"{_testUrl}/guilds/{guildId}/announces/{messageId ?? "all"}");
             await HttpLogAsync(res);
