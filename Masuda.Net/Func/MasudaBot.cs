@@ -21,6 +21,7 @@ namespace Masuda.Net
         private async Task<bool> HttpLogAsync(HttpResponseMessage httpResponseMessage)
         {
             if (httpResponseMessage == null) return false;
+            SelfLog(await httpResponseMessage.Content.ReadAsStringAsync());
             //Console.WriteLine(await httpResponseMessage.Content.ReadAsStringAsync());
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
@@ -436,20 +437,20 @@ namespace Masuda.Net
             return await res.Content.ReadFromJsonAsync<Channel?>();
         }
 
-        public async Task<Channel?> CreateChannelAsync(string guildId ,string name, ChannelType channelType, uint position, uint parentId)
+        public async Task<Channel?> CreateChannelAsync(string guildId ,string name, ChannelType channelType, uint position, string parentId)
         {
             var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/guilds/{guildId}/channels", new {name = name, type = channelType, position = position, parentId = parentId});
             if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Channel>();
         }
-        public async Task<Channel?> ModifyChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
+        public async Task<Channel?> ModifyChannelAsync(string channelId, string name, ChannelType channelType, uint position, string parentId)
         {
             var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channelId}", JsonContent.Create(new { name = name, type = channelType, position = position, parentId = parentId }));
             //await HttpLogAsync(res);
             if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Channel>();
         }
-        public async Task<bool> DeleteChannelAsync(string channelId, string name, ChannelType channelType, uint position, uint parentId)
+        public async Task<bool> DeleteChannelAsync(string channelId)
         {
             var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}");
             await HttpLogAsync(res);
