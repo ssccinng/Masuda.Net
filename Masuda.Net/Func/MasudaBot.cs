@@ -450,6 +450,14 @@ namespace Masuda.Net
             if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<Channel>();
         }
+        public async Task<Channel?> ModifyChannelAsync(Channel channel)
+        {
+            return await ModifyChannelAsync(channel.Id, channel.Name, channel.Type, (uint)channel.Position, channel.ParentId);
+            //var res = await _httpClient.PatchAsync($"{_testUrl}/channels/{channel.Id}", JsonContent.Create(new { name = channel.Name, type = channel.Type, position = channel.Position, parentId = channel.ParentId }));
+            ////await HttpLogAsync(res);
+            //if (!await HttpLogAsync(res)) return null;
+            //return await res.Content.ReadFromJsonAsync<Channel>();
+        }
         public async Task<bool> DeleteChannelAsync(string channelId)
         {
             var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}");
@@ -508,7 +516,7 @@ namespace Masuda.Net
         /// <returns></returns>
         public async Task<Message> SendMessageAsync(string channelId, string content)
         {
-            return await MessageCoreAsync(channelId, null, new[] { new PlainMessage(content) });
+            return await MessageCoreAsync(channelId, null, messageBases: new[] { new PlainMessage(content) });
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
@@ -546,7 +554,7 @@ namespace Masuda.Net
 
         public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
         {
-            return await MessageCoreAsync(channelId, msgId, new[] { new PlainMessage(content) });
+            return await MessageCoreAsync(channelId, msgId, messageBases: new[] { new PlainMessage(content) });
 
         }
 
@@ -572,7 +580,7 @@ namespace Masuda.Net
         //    return await res.Content.ReadFromJsonAsync<Message>();
         //}
 
-        private async Task<Message> MessageCoreAsync(string channelId, string msgId, MessageBase[] messageBases = null)
+        private async Task<Message> MessageCoreAsync(string channelId, string msgId, bool isDMS = false, MessageBase[] messageBases = null)
         {
             //if (messageBases.Length == 0) return null;
             MessageSend msg = new MessageSend();
@@ -615,7 +623,7 @@ namespace Masuda.Net
 
             if (msgId != null)
                 msg.MsgId = msgId;
-            var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", msg);
+            var res = await _httpClient.PostAsJsonAsync(isDMS ? $"{_testUrl}/dms/{channelId}/messages" : $"{_testUrl}/channels/{channelId}/messages", msg);
             //if (!res.IsSuccessStatusCode)
             //{
             //    Console.WriteLine(await res.Content.ReadAsStringAsync());
@@ -626,9 +634,9 @@ namespace Masuda.Net
             return await res.Content.ReadFromJsonAsync<Message>();
         }
 
-        private async Task<Message> MessageCoreAsync(Message message, MessageBase[] messageBases = null)
+        private async Task<Message> MessageCoreAsync(Message message, bool isDMS = false, MessageBase[] messageBases = null)
         {
-            return await MessageCoreAsync(message.ChannelId, message.Id, messageBases);
+            return await MessageCoreAsync(message.ChannelId, message.Id, isDMS: isDMS, messageBases: messageBases);
         }
         /// <summary>
         /// 回复消息简洁版
@@ -754,7 +762,7 @@ namespace Masuda.Net
         /// 获取频道日程列表
         /// </summary>
         /// <returns></returns>
-        public async Task <List<Schedule>?> GetSchedulesAsync(string channelId, string since = null)
+        public async Task <List<Schedule>?> GetSchedulesAsync(string channelId, long? since = null)
         {
             var tt = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/schedules{(since == null ? "" : $"?since={since}")}");
 
@@ -762,7 +770,7 @@ namespace Masuda.Net
             if (!await HttpLogAsync(tt)) return null;
             return await _httpClient.GetFromJsonAsync<List<Schedule>>($"{_testUrl}/channels/{channelId}/schedules");
         }
-        public async Task<List<Schedule>?> GetSchedulesAsync(Channel channel, string since = null)
+        public async Task<List<Schedule>?> GetSchedulesAsync(Channel channel, long? since = null)
         {
             return await GetSchedulesAsync(channel.Id, since);
         }
@@ -1037,7 +1045,10 @@ namespace Masuda.Net
                                 RecvLog(type);
                                 break;
                             case "DIRECT_MESSAGE_CREATE":
-                                
+                                Message directmessage = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
+                                DircetAction?.Invoke(this, directmessage, (ActionType)Enum.Parse(typeof(ActionType), type));
+                                RecvLog(
+                                    $"{type} {"私信: "}({await GetChannelNameAsync(directmessage.ChannelId)}) {directmessage.Author.Username}({directmessage.Author.Id}): {directmessage.Content}");
                                 break;
                             case "THREAD_CREATE":
                             case "THREAD_UPDATE":
@@ -1113,6 +1124,27 @@ namespace Masuda.Net
             }
 
         }
+        #endregion
+
+        #region 私信API
+        public async Task<DMS?> CreateDMS(string RecipientId, string SourceGuildId)
+        {
+            var res = await _httpClient.PostAsJsonAsync($"/users/@me/dms", new { recipient_id = RecipientId, source_guild_id = SourceGuildId });
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<DMS>();
+        }
+        public async Task<DMS?> CreateDMS(MemberWithGuildID member)
+        {
+            return await CreateDMS(member.User.Id, member.GuildId);
+        }
+        public async Task<DMS?> CreateDMS(Message message)
+        {
+            return await CreateDMS(message.Author.Id, message.GuildId);
+        }
+
+
+
+
         #endregion
     }
 }
