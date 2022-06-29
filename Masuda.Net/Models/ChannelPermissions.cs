@@ -32,15 +32,23 @@ namespace Masuda.Net.Models
             {
                 List<Permissions> list = new List<Permissions>();
                 long ps = long.Parse(Permissions);
-                int idx = 0;
-                while (ps > 0)
+                //int idx = 0;
+                //while (ps > 0)
+                //{
+                //    if ((ps & 1) == 1)
+                //    {
+                //        list.Add((Permissions)(1 << idx));
+                //    }
+                //    idx++;
+                //}
+                foreach (Permissions e in Enum.GetValues(typeof(Permissions)))
                 {
-                    if ((ps & 1) == 1)
+                    if ((ps & (long)e) != 0)
                     {
-                        list.Add((Permissions)(1 << idx));
+                        list.Add(e);
                     }
-                    idx++;
                 }
+
                 return list;
             }
             set
@@ -48,7 +56,7 @@ namespace Masuda.Net.Models
                 long res = 0;
                 foreach (Permissions permission in value)
                 {
-                    res |= (long)permission;
+                    res += (long)permission;
                 }
                 Permissions = res.ToString();
             }
@@ -57,8 +65,9 @@ namespace Masuda.Net.Models
 
     public enum Permissions
     {
-        Look = 1 << 0,
-        Manager = 1 << 1,
-        Say = 1 << 2,
+        Look = 1,
+        Manager = 2,
+        Say = 4,
+        Live = 8,
     }
 }
