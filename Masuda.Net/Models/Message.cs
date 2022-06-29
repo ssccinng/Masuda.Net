@@ -80,6 +80,8 @@ namespace Masuda.Net.Models
         [JsonPropertyName("ark")]
         public MessageArk Ark { get; set; }
     }
+    
+    public class DMSMessage: Message{}
     public class MessageEmbed: MessageBase
     {
         /// <summary>
@@ -200,6 +202,14 @@ namespace Masuda.Net.Models
         /// </summary>
         [JsonPropertyName("image")]
         public string Image { get; set; }
+        /// <summary>
+        /// 本地图片
+        /// </summary>
+        [JsonPropertyName("file_image")]
+        public byte[] FileImage { get; set; }
+        /// <summary>
+        /// 消息id
+        /// </summary>
         [JsonPropertyName("msg_id")]
         public string MsgId { get; set; }
     }

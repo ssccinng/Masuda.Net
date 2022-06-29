@@ -1,6 +1,7 @@
 ﻿using Masuda.Net.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,16 +43,26 @@ namespace Masuda.Net
             }
             
         }
-
+        /// <summary>
+        /// 发送消息log
+        /// </summary>
+        /// <param name="content"></param>
         private void SendLog(string content)
         {
             ConsoleLog($"-> {content}");
         }
+        /// <summary>
+        /// 接收消息log
+        /// </summary>
+        /// <param name="content"></param>
         private void RecvLog(string content)
         {
             ConsoleLog($"<- {content}");
         }
-
+/// <summary>
+/// 自身log
+/// </summary>
+/// <param name="content"></param>
         private void SelfLog(string content)
         {
             ConsoleLog($"-- {content} --");
@@ -74,7 +85,11 @@ namespace Masuda.Net
         }
 
 
-
+/// <summary>
+/// 获取频道名称
+/// </summary>
+/// <param name="Id"></param>
+/// <returns></returns>
         private async ValueTask<string?> GetGuildNameAsync(string Id)
         {
             if (_guildName.ContainsKey(Id)) return _guildName[Id];
@@ -514,23 +529,26 @@ namespace Masuda.Net
         /// <param name="channelId"></param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public async Task<Message> SendMessageAsync(string channelId, string content)
+        public async Task<Message> SendMessageAsync(string channelId, string content, bool isDMS = false)
         {
-            return await MessageCoreAsync(channelId, null, messageBases: new[] { new PlainMessage(content) });
+            return await MessageCoreAsync(channelId, null, isDMS, messageBases: new[] { new PlainMessage(content) });
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
 
         public async Task<Message> SendMessageAsync(Message message, string content)
         {
-            return await SendMessageAsync(message.ChannelId, content);
+            // return await SendMessageAsync(message.ChannelId, content, message is DMSMessage);
+            message.Id = null;
+            return await MessageCoreAsync(message, messageBases: new[] { new PlainMessage(content) });
+
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content });
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
 
-        public async Task<Message> SendMessageAsync(Channel channel, string content)
+        public async Task<Message> SendMessageAsync(Channel channel, string content, bool isDMS = false)
         {
-            return await SendMessageAsync(channel.Id, content);
+            return await SendMessageAsync(channel.Id, content, isDMS);
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channel.Id}/messages", new { content = content });
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
@@ -546,21 +564,22 @@ namespace Masuda.Net
             message.Id = null;
             return await MessageCoreAsync(message, messageBases: pMessageBases);
         }
-        public async Task<Message> SendMessageAsync(string channelId, params MessageBase[] pMessageBases)
+        public async Task<Message> SendMessageAsync(string channelId, bool isDMS = false, params MessageBase[] pMessageBases)
         {
             //message.Id = null;
-            return await MessageCoreAsync(channelId, null, messageBases: pMessageBases);
+            return await MessageCoreAsync(channelId, null, isDMS, messageBases: pMessageBases);
         }
 
-        public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId)
+        public async Task<Message> ReplyMessageAsync(string channelId, string content, string msgId, bool isDMS = false)
         {
-            return await MessageCoreAsync(channelId, msgId, messageBases: new[] { new PlainMessage(content) });
+            return await MessageCoreAsync(channelId, msgId, isDMS, messageBases: new[] { new PlainMessage(content) });
 
         }
 
         public async Task<Message> ReplyMessageAsync(Message message, string content)
         {
-            return await ReplyMessageAsync(message.ChannelId, content, message.Id);
+            Console.WriteLine(JsonSerializer.Serialize(message));
+            return await ReplyMessageAsync(message.ChannelId, content, message.Id, message is DMSMessage);
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{message.ChannelId}/messages", new { content = content, msg_id = message.Id });
             //if (!res.IsSuccessStatusCode)
             //{
@@ -582,8 +601,11 @@ namespace Masuda.Net
 
         private async Task<Message> MessageCoreAsync(string channelId, string msgId, bool isDMS = false, MessageBase[] messageBases = null)
         {
+            bool isFileImage = false;
             //if (messageBases.Length == 0) return null;
             MessageSend msg = new MessageSend();
+            byte[] imageArray = null;
+            // string filename = "";
             if (messageBases != null)
             {
                 StringBuilder content = new();
@@ -598,7 +620,26 @@ namespace Masuda.Net
                             content.Append(nageToChannelMessage);
                             break;
                         case ImageMessage imageMessage:
-                            msg.Image = imageMessage.Url;
+                            // Console.WriteLine("让我康康");
+                            // Console.WriteLine(imageMessage.Path);
+                            if (imageMessage.Url != null)
+                            {
+                                msg.Image = imageMessage.Url;
+                            }
+                            else if (imageMessage.Path != null)
+                            {
+                                // 需要读取
+                                // msg.FileImage = File.ReadAllBytes(imageMessage.Path);
+                                imageArray = File.ReadAllBytes(imageMessage.Path);
+                                // filename = imageMessage.Path;
+                                isFileImage = true;
+                            }
+                            else if (imageMessage.Data != null)
+                            {
+                                // msg.FileImage = imageMessage.Data;
+                                imageArray = imageMessage.Data;
+                                isFileImage = true;
+                            }
                             break;
                         case PlainMessage plainMessage:
                             content.Append(plainMessage);
@@ -619,24 +660,70 @@ namespace Masuda.Net
                 if (content.Length > 0)
                     msg.Content = content.ToString();
             }
-
+            // MultipartFormDataContent
 
             if (msgId != null)
                 msg.MsgId = msgId;
-            var res = await _httpClient.PostAsJsonAsync(isDMS ? $"{_testUrl}/dms/{channelId}/messages" : $"{_testUrl}/channels/{channelId}/messages", msg);
-            //if (!res.IsSuccessStatusCode)
-            //{
-            //    Console.WriteLine(await res.Content.ReadAsStringAsync());
-            //}
-            if (!await HttpLogAsync(res)) return null;
-            //await htt
-            SendLog($"{await GetChannelNameAsync(channelId)} {msg.Content}");
-            return await res.Content.ReadFromJsonAsync<Message>();
+            var jmsg = JsonSerializer.Serialize(msg, new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+            Console.WriteLine(jmsg);
+            var element = JsonDocument.Parse(jmsg).RootElement;
+            if (isFileImage)
+            {
+                // Console.WriteLine("文件图");
+                // Console.WriteLine(imageArray.Length);
+                MultipartFormDataContent data = new();
+                foreach (var jp in element.EnumerateObject())
+                {
+                    // Console.WriteLine(jp.Name);
+                    // if (jp.Name != "file_image")
+                    // {
+                    //     data.Add(new ByteArrayContent(imageArray), jp.Name);
+                    // }
+                    // else
+                    {
+                        data.Add( new StringContent(jp.Value.GetString()), jp.Name);
+                    }
+                }
+                // data.Add(new StreamContent(new MemoryStream(imageArray)), "file_image");
+                data.Add(new StreamContent(new MemoryStream(imageArray)), "file_image", "kui.png");
+
+                var res = await _httpClient
+                    .PostAsync(
+                        isDMS ? $"{_testUrl}/dms/{channelId}/messages" : 
+                            $"{_testUrl}/channels/{channelId}/messages", data);
+                //if (!res.IsSuccessStatusCode)
+                //{
+                //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+                //}
+                if (!await HttpLogAsync(res)) return null;
+                //await htt
+                SendLog($"{await GetChannelNameAsync(channelId)} {msg.Content}");
+                return await res.Content.ReadFromJsonAsync<Message>();
+            }
+            else
+            {
+                var res = await _httpClient
+                    .PostAsJsonAsync(
+                        isDMS ? $"{_testUrl}/dms/{channelId}/messages" : 
+                            $"{_testUrl}/channels/{channelId}/messages", msg);
+                //if (!res.IsSuccessStatusCode)
+                //{
+                //    Console.WriteLine(await res.Content.ReadAsStringAsync());
+                //}
+                if (!await HttpLogAsync(res)) return null;
+                //await htt
+                SendLog($"{await GetChannelNameAsync(channelId)} {msg.Content}");
+                return await res.Content.ReadFromJsonAsync<Message>();
+            }
+            
         }
 
-        private async Task<Message> MessageCoreAsync(Message message, bool isDMS = false, MessageBase[] messageBases = null)
+        private async Task<Message> MessageCoreAsync(Message message, MessageBase[] messageBases = null)
         {
-            return await MessageCoreAsync(message.ChannelId, message.Id, isDMS: isDMS, messageBases: messageBases);
+            return await MessageCoreAsync(message is DMSMessage ? message.GuildId : message.ChannelId, message.Id, message is DMSMessage, messageBases: messageBases);
         }
         /// <summary>
         /// 回复消息简洁版
@@ -648,9 +735,9 @@ namespace Masuda.Net
         {
             return await MessageCoreAsync(message, messageBases: pMessageBases);
         }
-        public async Task<Message> ReplyMessageAsync(string channelId, string messageId, params MessageBase[] pMessageBases)
+        public async Task<Message> ReplyMessageAsync(string channelId, string messageId, bool isDMS = false, params MessageBase[] pMessageBases)
         {
-            return await MessageCoreAsync(channelId, messageId, messageBases: pMessageBases);
+            return await MessageCoreAsync(channelId, messageId, isDMS, messageBases: pMessageBases);
         }
         /// <summary>
         /// 获取指定Id消息
@@ -933,7 +1020,7 @@ namespace Masuda.Net
         /// <returns></returns>
         private async Task SendIdentifyAsync(Intent[] intents = null)
         {
-            intents ??= new[] { Intent.AT_MESSAGES };
+            intents ??= new[] { Intent.PUBLIC_GUILD_MESSAGES };
             int intent = 0;
             foreach (var it in _intents)
             {
@@ -1045,7 +1132,7 @@ namespace Masuda.Net
                                 RecvLog(type);
                                 break;
                             case "DIRECT_MESSAGE_CREATE":
-                                Message directmessage = JsonSerializer.Deserialize<Message>(data.GetProperty("d").GetRawText());
+                                DMSMessage directmessage = JsonSerializer.Deserialize<DMSMessage>(data.GetProperty("d").GetRawText());
                                 DircetAction?.Invoke(this, directmessage, (ActionType)Enum.Parse(typeof(ActionType), type));
                                 RecvLog(
                                     $"{type} {"私信: "}({await GetChannelNameAsync(directmessage.ChannelId)}) {directmessage.Author.Username}({directmessage.Author.Id}): {directmessage.Content}");
@@ -1127,9 +1214,9 @@ namespace Masuda.Net
         #endregion
 
         #region 私信API
-        public async Task<DMS?> CreateDMS(string RecipientId, string SourceGuildId)
+        public async Task<DMS?> CreateDMS(string recipientId, string sourceGuildId)
         {
-            var res = await _httpClient.PostAsJsonAsync($"/users/@me/dms", new { recipient_id = RecipientId, source_guild_id = SourceGuildId });
+            var res = await _httpClient.PostAsJsonAsync($"/users/@me/dms", new { recipient_id = recipientId, source_guild_id = sourceGuildId });
             if (!await HttpLogAsync(res)) return null;
             return await res.Content.ReadFromJsonAsync<DMS>();
         }
@@ -1141,10 +1228,16 @@ namespace Masuda.Net
         {
             return await CreateDMS(message.Author.Id, message.GuildId);
         }
+        
+        public async Task DeleteDMSMessage(Message message)
+        {
+            await DeleteDMSMessage(message.Id);
+        }
 
-
-
-
+        public async Task DeleteDMSMessage(string messageId)
+        {
+            
+        }
         #endregion
     }
 }

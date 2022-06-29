@@ -9,7 +9,7 @@ namespace Masuda.Net.Models
 {
     public class DMS
     {
-        // <summary>
+        /// <summary>
         /// 私信会话关联的频道 id
         /// </summary>
         [JsonPropertyName("guild_id")]
