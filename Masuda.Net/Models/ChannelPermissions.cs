@@ -57,7 +57,8 @@ namespace Masuda.Net.Models
                 long res = 0;
                 foreach (Permissions permission in value)
                 {
-                    res += (long)permission;
+                    //res += (long)permission;
+                    res |= (long)permission;
                 }
                 Permissions = res.ToString();
             }
