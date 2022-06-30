@@ -59,10 +59,10 @@ namespace Masuda.Net.HelpMessage
 
     public enum ThreadFormat
     {
-        FORMAT_TEXT = 1,//	普通文本
-        FORMAT_HTML = 2,//		HTML
-        FORMAT_MARKDOWN = 3,//	Markdown
-        FORMAT_JSON = 4,//	JSON（content参数可参照RichText结构）
+        Text = 1,//	普通文本
+        HTML = 2,//		HTML
+        Markdown = 3,//	Markdown
+        JSON = 4,//	JSON（content参数可参照RichText结构）
     }
 
     /// <summary>
