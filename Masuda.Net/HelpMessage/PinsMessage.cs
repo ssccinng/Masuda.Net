@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Masuda.Net.HelpMessage
 {
-    public class PinsMessage : MessageBase
+    public class PinsMessageResult
     {
 
         [JsonPropertyName("guild_id")]
