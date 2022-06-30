@@ -775,7 +775,11 @@ namespace Masuda.Net
             return await DeleteMessageAsync(message.ChannelId, message.Id);
         }
 
+
         #endregion
+
+
+        
 
         #region 音频API
         public async Task<bool> AudioControlAsync(string channelId, string url, STATUS STATUS = STATUS.START, string text = "")
