@@ -30,8 +30,8 @@ namespace Masuda.Net.HelpMessage
                 return Id;
             }
         }
-        private static Dictionary<string, string> s_defautEmoji = DefaultEmojiInit();
-        private static Dictionary<string, string> s_Emoji = EmojiInit();
+        private static Dictionary<string, string> _sDefautEmoji = DefaultEmojiInit();
+        private static Dictionary<string, string> _sEmoji = EmojiInit();
 
         public static Dictionary<string, string> EmojiInit()
         {
@@ -408,6 +408,22 @@ namespace Masuda.Net.HelpMessage
 273	柠檬
 274	南";
             return a.Split('\n').ToDictionary(x => x.Split('\t')[0], x => x.Split('\t')[1]);
+        }
+
+        public static EmojiMessage CreateEmojiMessage(string id)
+        {
+            return new EmojiMessage
+            {
+                Type = EmojiType.Emoji, Id = id
+            };
+        }
+
+        public static EmojiMessage CreatDefaultEmojiMessage(string id)
+        {
+            return new EmojiMessage
+            {
+                Type = EmojiType.Default, Id = id
+            };
         }
     }
 }
