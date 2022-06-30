@@ -688,6 +688,47 @@ namespace Masuda.Net
             return await DeleteMessageAsync(message.ChannelId, message.Id);
         }
 
+
+
+        /// <summary>
+        /// 添加精华消息
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="msgId"></param>
+        /// <returns></returns>
+        public async Task<bool> AddPinsMessageAsync(string channelId, string msgId)
+        {
+            var res = await _httpClient.PutAsync($"{_testUrl}/channels/{channelId}/pins/{msgId}", null);
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+        }
+
+        /// <summary>
+        /// 删除精华消息
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="msgId"></param>
+        /// <returns></returns>
+        public async Task<bool> DeletePinsMessageAsync(string channelId, string msgId)
+        {
+            var res = await _httpClient.DeleteAsync($"{_testUrl}/channels/{channelId}/pins/{msgId}");
+            await HttpLogAsync(res);
+            return res.IsSuccessStatusCode;
+        }
+
+        /// <summary>
+        /// 获取精华消息
+        /// </summary>
+        /// <param name="channelId"></param>
+        /// <param name="msgId"></param>
+        /// <returns></returns>
+        public async Task<PinsMessage?> GetPinsMessageAsync(string channelId, string msgId)
+        {
+            var res = await _httpClient.GetAsync($"{_testUrl}/channels/{channelId}/pins");
+            if (!await HttpLogAsync(res)) return null;
+            return await res.Content.ReadFromJsonAsync<PinsMessage>();
+        }
+
         #endregion
 
         #region 音频API
