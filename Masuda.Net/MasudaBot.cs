@@ -38,7 +38,7 @@ namespace Masuda.Net
         /// </summary>
         private Timer _timer;
         private string _sessionId = null;
-        private Intent[] _intents = new [] {Intent.AT_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS};
+        private Intent[] _intents = new [] {Intent.PUBLIC_GUILD_MESSAGES, Intent.GUILDS, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS};
         private Task _botTask;
         private Dictionary<string, string> _guildName = new();
         private Dictionary<string, string> _channelName = new();
@@ -62,7 +62,7 @@ namespace Masuda.Net
         /// <summary>
         /// 直接消息事件（未开放）
         /// </summary>
-        public event Action<MasudaBot, Message, ActionType> DircetAction;
+        public event Action<MasudaBot, DMSMessage, ActionType> DircetAction;
         /// <summary>
         /// 论坛事件（未开放）
         /// </summary>
@@ -120,18 +120,18 @@ namespace Masuda.Net
             switch (botType)
             {
                 case BotType.PublicSandBox:
-                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.PUBLIC_GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
                     botSetting.SandBox = true;
                     break;
                 case BotType.Public:
-                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.PUBLIC_GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS };
                     break;
                 case BotType.PrivateSandBox:
-                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.PUBLIC_GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
                     botSetting.SandBox = true;
                     break;
                 case BotType.Private:
-                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.AT_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
+                    botSetting.Intents = new Intent[] { Intent.GUILDS, Intent.PUBLIC_GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILD_MESSAGE_REACTIONS, Intent.NORMAL_MESSAGES };
 
                     break;
                 default:
