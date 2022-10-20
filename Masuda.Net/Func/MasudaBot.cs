@@ -607,7 +607,6 @@ namespace Masuda.Net
             //var res = await _httpClient.PostAsJsonAsync($"{_testUrl}/channels/{channelId}/messages", new { content = content });
             //return await res.Content.ReadFromJsonAsync<Message>();
         }
-
         public async Task<Message> SendMessageAsync(Message message, string content)
         {
             // return await SendMessageAsync(message.ChannelId, content, message is DMSMessage);
@@ -636,7 +635,12 @@ namespace Masuda.Net
             message.Id = null;
             return await MessageCoreAsync(message, messageBases: pMessageBases);
         }
-
+        public async Task<Message> SendMessageAsync(string channelId,
+            params MessageBase[] pMessageBases)
+        {
+            //message.Id = null;
+            return await MessageCoreAsync(channelId, null, false, messageBases: pMessageBases);
+        }
         public async Task<Message> SendMessageAsync(string channelId, bool isDMS = false,
             params MessageBase[] pMessageBases)
         {
